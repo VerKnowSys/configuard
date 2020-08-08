@@ -54,7 +54,7 @@ pub fn new(name: String) -> String {
 
         let last_ipv4 = match find_last_ipv4(all_used_ipv4s) {
             Some(ipv4) => ipv4,
-            None => next_workstation_ipv4(SERVER_ROUTER_IP).unwrap_or_default(), /* if list of entries is empty, assign next address after router */
+            None => SERVER_ROUTER_IP.to_string(), /* if list of entries is empty, assign next address after router */
         };
 
         let ipv4 = match next_workstation_ipv4(&last_ipv4) {
