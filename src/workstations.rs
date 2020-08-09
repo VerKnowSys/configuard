@@ -83,26 +83,25 @@ pub fn new(name: String) -> String {
     .render()
     .unwrap_or_default();
 
-
     // iterate over all entries, build public side of server-side wireguard server configuration
     let all_entries_files = WalkDir::new("entries/")
         .into_iter()
         .filter_map(|v| v.ok())
         .filter(|file| file.path().is_file())
         .collect::<Vec<_>>();
-    let all_entries_ipv4s = all_entries_files
+    let all_entries_ipv4s_and_pubkeys = all_entries_files
         .iter()
         .filter_map(|file| read_to_string(file.path()).ok())
         .filter_map(|line| both_elements(&line))
         .collect::<Vec<_>>();
-    let zipped = all_entries_files.iter().zip(&all_entries_ipv4s);
+    let zipped = all_entries_files.iter().zip(&all_entries_ipv4s_and_pubkeys);
 
     // render server configuration header and append entries based on available entries
     let server_config_entries_rendered = zipped
         .map(|(config_name, (ip, pubkey))| {
             // entries
             format!(
-                "{}\n",
+                "{}\n\n",
                 (WireguardServerConfigurationEntryTemplate {
                     user_name: &config_name
                         .file_name()
@@ -119,7 +118,7 @@ pub fn new(name: String) -> String {
         .collect::<String>();
 
     let server_config_rendered = format!(
-        "{}\n\n{}\n",
+        "{}\n\n\n{}\n",
         server_template, server_config_entries_rendered
     );
 
