@@ -24,9 +24,13 @@ pub fn new(name: String) -> String {
     // if IP entry with given name already exists - we wish to re-use it:
     let existing_entry = Path::new(&format!("entries/workstations/{}", name)).to_owned();
     let user_ipv4 = if existing_entry.exists() {
-        read_to_string(existing_entry)
-            .unwrap_or_default()
-            .replace('\n', "")
+        let line = read_to_string(existing_entry).unwrap_or_default();
+        let vector = line.split(',').collect::<Vec<_>>();
+        if let Some(first_element) = vector.first() {
+            first_element.replace('\n', "")
+        } else {
+            String::from("0.0.0.0")
+        }
     } else {
         let all_used_ipv4s = WalkDir::new("entries/workstations/")
             .into_iter()
