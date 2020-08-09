@@ -59,18 +59,18 @@ pub fn new(name: String) -> String {
             Some(ipv4) => ipv4,
             None => SERVER_ROUTER_IP.to_string(), /* if list of entries is empty, assign next address after router */
         };
-
-        let ipv4 = match next_workstation_ipv4(&last_ipv4) {
+        match next_workstation_ipv4(&last_ipv4) {
             Some(ipv4) => ipv4,
             None => panic!("Address pool exhausted!"),
-        };
-        // store entry for user:
-        write_atomic(
-            &format!("entries/workstations/{}", name),
-            &format!("{},{}", ipv4, public_key),
-        );
-        ipv4
+        }
     };
+
+    // store entry for user with new generated pubkey:
+    write_atomic(
+        &format!("entries/workstations/{}", name),
+        &format!("{},{}", user_ipv4, public_key),
+    );
+
     let user_nets = format!("{}{}", user_ipv4, MAIN_MASK);
 
     // server main template
