@@ -17,6 +17,26 @@ use std::{fs::read_to_string, path::Path};
 use walkdir::{DirEntry, WalkDir};
 
 
+fn first_of_pair(line: &str) -> Option<String> {
+    let vector = line.split(',').collect::<Vec<_>>();
+    if let Some(first_element) = vector.first() {
+        Some(first_element.replace('\n', ""))
+    } else {
+        None
+    }
+}
+
+
+fn both_elements(line: &str) -> Option<(String, String)> {
+    let vector = line.split(',').collect::<Vec<_>>();
+    if let (Some(ip), Some(pubkey)) = (vector.first(), vector.last()) {
+        Some((ip.to_string(), pubkey.to_string()))
+    } else {
+        None
+    }
+}
+
+
 #[post("/<name>")]
 pub fn new(name: String) -> String {
     let (private_key, public_key) = generate_wireguard_keys();
@@ -25,26 +45,14 @@ pub fn new(name: String) -> String {
     let existing_entry = Path::new(&format!("entries/workstations/{}", name)).to_owned();
     let user_ipv4 = if existing_entry.exists() {
         let line = read_to_string(existing_entry).unwrap_or_default();
-        let vector = line.split(',').collect::<Vec<_>>();
-        if let Some(first_element) = vector.first() {
-            first_element.replace('\n', "")
-        } else {
-            String::from("0.0.0.0")
-        }
+        first_of_pair(&line).unwrap_or_default()
     } else {
         let all_used_ipv4s = WalkDir::new("entries/workstations/")
             .into_iter()
             .filter_map(|v| v.ok())
             .filter(|file| file.path().is_file())
             .filter_map(|file| read_to_string(file.path()).ok())
-            .filter_map(|line| {
-                let vector = line.split(',').collect::<Vec<_>>();
-                if let Some(first_element) = vector.first() {
-                    Some(first_element.replace('\n', ""))
-                } else {
-                    None
-                }
-            })
+            .filter_map(|line| first_of_pair(&line))
             .collect::<Vec<String>>();
 
         let last_ipv4 = match find_last_ipv4(all_used_ipv4s) {
@@ -85,14 +93,7 @@ pub fn new(name: String) -> String {
     let all_entries_ipv4s = all_entries_files
         .iter()
         .filter_map(|file| read_to_string(file.path()).ok())
-        .filter_map(|line| {
-            let vector = line.split(',').collect::<Vec<_>>();
-            if let (Some(ip), Some(pubkey)) = (vector.first(), vector.last()) {
-                Some((ip.to_string(), pubkey.to_string()))
-            } else {
-                None
-            }
-        })
+        .filter_map(|line| both_elements(&line))
         .collect::<Vec<_>>();
     let zipped = all_entries_files.iter().zip(&all_entries_ipv4s);
 
