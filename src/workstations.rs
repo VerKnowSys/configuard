@@ -20,22 +20,6 @@ use walkdir::{DirEntry, WalkDir};
 #[post("/<name>")]
 pub fn new(name: String) -> String {
     let (private_key, public_key) = generate_wireguard_keys();
-    // println!("SEC ENC: {}", private_key);
-    // println!("PUB ENC: {}", public_key);
-
-    let server_template = WireguardServerConfigurationTemplate {
-        server_port: SERVER_PORT,
-        server_private_key: SERVER_PRIVATE_KEY,
-    };
-
-    // TODO: iterate over user entries and generate full list
-    let server_entry_template = WireguardServerConfigurationEntryTemplate {
-        user_name: &name,
-        user_public_key: &public_key,
-        user_ips: "",
-    };
-    // let server_config_entries_rendered =
-    // let server_config_rendered = format!("{}\n\n{}\n", server_template.render().unwrap_or_default(), server_config_entries_rendered);
 
     // if IP entry with given name already exists - we wish to re-use it:
     let existing_entry = Path::new(&format!("entries/workstations/{}", name)).to_owned();
@@ -49,8 +33,15 @@ pub fn new(name: String) -> String {
             .filter_map(|v| v.ok())
             .filter(|file| file.path().is_file())
             .filter_map(|file| read_to_string(file.path()).ok())
-            .map(|line| line.replace('\n', ""))
-            .collect::<Vec<_>>();
+            .filter_map(|line| {
+                let vector = line.split(',').collect::<Vec<_>>();
+                if let Some(first_element) = vector.first() {
+                    Some(first_element.replace('\n', ""))
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<String>>();
 
         let last_ipv4 = match find_last_ipv4(all_used_ipv4s) {
             Some(ipv4) => ipv4,
@@ -62,10 +53,72 @@ pub fn new(name: String) -> String {
             None => panic!("Address pool exhausted!"),
         };
         // store entry for user:
-        write_atomic(&format!("entries/workstations/{}", name), &ipv4);
+        write_atomic(
+            &format!("entries/workstations/{}", name),
+            &format!("{},{}", ipv4, public_key),
+        );
         ipv4
     };
     let user_nets = format!("{}{}", user_ipv4, MAIN_MASK);
+
+    // server main template
+    let server_template = (WireguardServerConfigurationTemplate {
+        server_port: SERVER_PORT,
+        server_private_key: &read_to_string(SERVER_PRIVATE_KEY)
+            .unwrap_or_default()
+            .replace('\n', ""),
+    })
+    .render()
+    .unwrap_or_default();
+
+
+    // iterate over all entries, build public side of server-side wireguard server configuration
+    let all_entries_files = WalkDir::new("entries/")
+        .into_iter()
+        .filter_map(|v| v.ok())
+        .filter(|file| file.path().is_file())
+        .collect::<Vec<_>>();
+    let all_entries_ipv4s = all_entries_files
+        .iter()
+        .filter_map(|file| read_to_string(file.path()).ok())
+        .filter_map(|line| {
+            let vector = line.split(',').collect::<Vec<_>>();
+            if let (Some(ip), Some(pubkey)) = (vector.first(), vector.last()) {
+                Some((ip.to_string(), pubkey.to_string()))
+            } else {
+                None
+            }
+        })
+        .collect::<Vec<_>>();
+    let zipped = all_entries_files.iter().zip(&all_entries_ipv4s);
+
+    // render server configuration header and append entries based on available entries
+    let server_config_entries_rendered = zipped
+        .map(|(config_name, (ip, pubkey))| {
+            // entries
+            format!(
+                "{}\n",
+                (WireguardServerConfigurationEntryTemplate {
+                    user_name: &config_name
+                        .file_name()
+                        .to_os_string()
+                        .into_string()
+                        .unwrap_or_default(),
+                    user_ips: ip,
+                    user_public_key: pubkey,
+                })
+                .render()
+                .unwrap_or_default()
+            )
+        })
+        .collect::<String>();
+
+    let server_config_rendered = format!(
+        "{}\n\n{}\n",
+        server_template, server_config_entries_rendered
+    );
+
+    println!("SERVER_CONFIG:\n{}", server_config_rendered);
 
     // TODO: setup_routes(); // route add 100.64.64.1/32 -interface wg0
     // route -6 add fde4:82c4:04eb:dd8d::1:5 -interface wg0
@@ -76,7 +129,9 @@ pub fn new(name: String) -> String {
         user_name: &name,
         user_private_key: &private_key,
         user_nets: &user_nets,
-        server_public_key: SERVER_PUBLIC_KEY,
+        server_public_key: &read_to_string(SERVER_PUBLIC_KEY)
+            .unwrap_or_default()
+            .replace('\n', ""),
         default_server_endpoint: &format!("{}:{}", SERVER_IP, SERVER_PORT),
     };
 
