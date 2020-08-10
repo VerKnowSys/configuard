@@ -9,7 +9,7 @@
         trivial_numeric_casts,
         unused_import_braces,
         unused_qualifications)]
-#![allow(unused_imports, dead_code)]
+// #![allow(unused_imports, dead_code)]
 
 
 #[macro_use]
