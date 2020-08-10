@@ -91,10 +91,11 @@ pub fn new(name: String) -> String {
         .filter_map(|file| read_to_string(file.path()).ok())
         .filter_map(|line| both_elements(&line))
         .collect::<Vec<_>>();
-    let zipped = all_entries_files.iter().zip(&all_entries_ipv4s_and_pubkeys);
 
     // render server configuration header and append entries based on available entries
-    let server_config_entries_rendered = zipped
+    let server_config_entries_rendered = all_entries_files
+        .iter()
+        .zip(&all_entries_ipv4s_and_pubkeys)
         .map(|(config_name, (ip, pubkey))| {
             // entries
             format!(
@@ -121,10 +122,14 @@ pub fn new(name: String) -> String {
 
     println!("SERVER_CONFIG:\n{}", server_config_rendered);
 
-    // TODO: setup_routes(); // route add 100.64.64.1/32 -interface wg0
+    // NOTE: Create bridge0 with router ip assigned to it. Don't assign .1.1 to server-side wg
+    // TODO: add bridge0 preconfiguration as below:
+    // ifconfig bridge0 inet 100.64.1.1/10 up
+
+    // TODO: add_routes(); // route add 100.64.64.1/32 -interface wg0
     // route -6 add fde4:82c4:04eb:dd8d::1:5 -interface wg0
 
-    // TODO: sync_wg_confifguration(); // wg syncconf wg0 wg0.conf
+    // TODO: sync_wg_configuration(); // wg syncconf wg0 wg0.conf
 
     let user_template = WireguardWorkstationTemplate {
         user_name: &name,
