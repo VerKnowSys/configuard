@@ -27,3 +27,12 @@ wireguard_conf = "/Services/Wireguard-tools/wg0.conf" # full path to wg0.conf
 
 - Generate new server-instance configuration:
   `curl -X POST http://localhost:8000/your-configured-uuid/wireguard/new/instance/my-server`
+
+
+## License:
+
+- BSD
+
+- MIT
+
+- Apache2
