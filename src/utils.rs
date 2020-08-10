@@ -134,3 +134,23 @@ pub fn write_atomic(file_path: &str, contents: &str) {
         }
     }
 }
+
+
+pub fn first_of_pair(line: &str) -> Option<String> {
+    let vector = line.split(',').collect::<Vec<_>>();
+    if let Some(first_element) = vector.first() {
+        Some(first_element.replace('\n', ""))
+    } else {
+        None
+    }
+}
+
+
+pub fn both_elements(line: &str) -> Option<(String, String)> {
+    let vector = line.split(',').collect::<Vec<_>>();
+    if let (Some(ip), Some(pubkey)) = (vector.first(), vector.last()) {
+        Some((ip.to_string(), pubkey.to_string()))
+    } else {
+        None
+    }
+}

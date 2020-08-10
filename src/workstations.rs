@@ -2,7 +2,9 @@ use crate::config::*;
 use crate::templates::WireguardServerConfigurationEntryTemplate;
 use crate::templates::WireguardServerConfigurationTemplate;
 use crate::templates::WireguardWorkstationTemplate;
+use crate::utils::both_elements;
 use crate::utils::find_last_ipv4;
+use crate::utils::first_of_pair;
 use crate::utils::generate_wireguard_keys;
 use crate::utils::next_workstation_ipv4;
 use crate::utils::write_atomic;
@@ -12,26 +14,6 @@ use askama::Template;
 use rocket::{ignite, Rocket};
 use std::{fs::read_to_string, path::Path};
 use walkdir::{DirEntry, WalkDir};
-
-
-fn first_of_pair(line: &str) -> Option<String> {
-    let vector = line.split(',').collect::<Vec<_>>();
-    if let Some(first_element) = vector.first() {
-        Some(first_element.replace('\n', ""))
-    } else {
-        None
-    }
-}
-
-
-fn both_elements(line: &str) -> Option<(String, String)> {
-    let vector = line.split(',').collect::<Vec<_>>();
-    if let (Some(ip), Some(pubkey)) = (vector.first(), vector.last()) {
-        Some((ip.to_string(), pubkey.to_string()))
-    } else {
-        None
-    }
-}
 
 
 #[post("/<name>")]
