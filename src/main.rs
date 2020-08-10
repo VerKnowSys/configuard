@@ -20,6 +20,7 @@ use crate::config::validate_config;
 use rocket::{ignite, Rocket};
 
 
+mod common;
 mod config;
 mod instances;
 mod templates;
@@ -30,12 +31,17 @@ mod workstations;
 mod tests;
 
 
+const ENTRIES_DIR: &str = "entries/";
+const INSTANCES_DIR: &str = "instances/";
+const WORKSTATIONS_DIR: &str = "workstations/";
 const SERVER_PUBLIC_KEY: &str = "/Services/Wireguard-tools/pub.key";
 const SERVER_PRIVATE_KEY: &str = "/Services/Wireguard-tools/private.key";
 
 
 #[launch]
 fn start() -> Rocket {
+    // TODO: add validation if os is local vs server
+    // TODO: add validation if user is root
     validate_config(&config());
     ignite()
         .mount(

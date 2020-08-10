@@ -1,18 +1,7 @@
 use askama::Template;
-use rand_core::OsRng;
 use std::fs::{File, OpenOptions};
 use std::io::Error;
-use std::process::{Child, ChildStderr, ChildStdout, Command, ExitStatus, Output, Stdio};
-use x25519_dalek::{PublicKey, StaticSecret};
-
-
-pub fn generate_wireguard_keys() -> (String, String) {
-    let private = StaticSecret::new(&mut OsRng);
-    let public = PublicKey::from(&private);
-    let public_b64 = base64::encode(public.as_bytes());
-    let private_b64 = base64::encode(&private.to_bytes());
-    (private_b64, public_b64)
-}
+use std::process::{Command, ExitStatus, Stdio};
 
 
 pub fn next_workstation_ipv4(ipv4: &str) -> Option<String> {
