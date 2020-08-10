@@ -1,6 +1,21 @@
 # WireGuard Service
 
 
+
+## Assumptions:
+
+- small/ medium private network is fine for me
+
+- production system is svdOS (based on HardnedBSD/FreeBSD 12.x) x86_64 with ZFS-on-root.
+
+- by default `/10` netmask is used for access to whole default private network: `100.64.0.0`
+
+- by default max defined workstations: `253` (.1.2 => .1.254)
+
+- by default max defined instances: `64009` (.2.2 => .254.254)
+
+
+
 ## Configuration:
 
 
@@ -17,16 +32,18 @@ wireguard_conf = "/Services/Wireguard-tools/wg0.conf" # full path to wg0.conf
 ```
 
 
+
 ## Usage:
 
 - Start service locally on `127.1:8000`:
-  `ROCKET_address="127.0.0.1" ROCKET_port=8000 cargo run`
+  `ROCKET_ENV=production ROCKET_address="localhost" ROCKET_port=8000 cargo run`
 
 - Generate new workstation configuration:
   `curl -X POST http://localhost:8000/your-configured-uuid/wireguard/new/workstation/dmilith`
 
 - Generate new server-instance configuration:
   `curl -X POST http://localhost:8000/your-configured-uuid/wireguard/new/instance/my-server`
+
 
 
 ## License:
