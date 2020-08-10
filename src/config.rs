@@ -8,6 +8,8 @@ pub struct Config {
     pub main_net_mask: String,
     pub server_port: u16,
     pub server_public_ip: String,
+    pub wireguard_conf: String,
+    pub wireguard_bin: String,
 }
 
 
@@ -32,6 +34,12 @@ pub fn validate_config(config: &Config) {
     }
     if config.uuid.is_empty() {
         panic!("Config: uuid can't be empty!")
+    }
+    if config.wireguard_conf.is_empty() || !config.wireguard_conf.ends_with("conf") {
+        panic!("Config: wireguard_conf has to be path to wg0.conf!")
+    }
+    if config.wireguard_bin.is_empty() || !config.wireguard_bin.ends_with("wg") {
+        panic!("Config: wireguard_bin has to be path to wg binary!")
     }
     if config.server_port == 0 {
         panic!("Config: server_port can't be 0!")
