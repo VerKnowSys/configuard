@@ -5,11 +5,13 @@ use crate::templates::RouteDelTemplate;
 use crate::templates::WireguardServerConfigurationEntryTemplate;
 use crate::templates::WireguardServerConfigurationTemplate;
 use crate::templates::WireguardSyncConfigTemplate;
+use crate::templates::WireguardWorkstationTemplate;
 use crate::utils::both_elements;
 use crate::utils::first_of_pair;
 use crate::utils::run;
 use crate::ENTRIES_DIR;
 use crate::SERVER_PRIVATE_KEY;
+use crate::SERVER_PUBLIC_KEY;
 use askama::Template;
 use rand_core::OsRng;
 use std::fs::read_to_string;
@@ -133,4 +135,50 @@ pub fn read_all_used_ipv4(from_subdir: &str) -> Vec<String> {
 
 pub fn read_server_key(file: &str) -> String {
     read_to_string(file).unwrap_or_default().replace('\n', "")
+}
+
+
+pub fn random_name(length: usize) -> String {
+    use rand::distributions::Alphanumeric;
+    use rand::{thread_rng, Rng};
+    thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(length)
+        .collect()
+}
+
+
+pub fn random_byte() -> u8 {
+    use rand::{thread_rng, Rng};
+    let mut rng = thread_rng();
+    rng.gen_range(2, 254)
+}
+
+
+pub fn random_word() -> u16 {
+    use rand::{thread_rng, Rng};
+    let mut rng = thread_rng();
+    rng.gen_range(966, 65535)
+}
+
+
+pub fn new_decoy() -> String {
+    let (private_key, _) = generate_wireguard_keys();
+    let user_ipv4 = format!(
+        "{}.{}.{}.{}",
+        random_byte(),
+        random_byte(),
+        random_byte(),
+        random_byte()
+    );
+    let user_nets = format!("{}/{}", user_ipv4, random_byte() % 32 + 9);
+    let user_template = WireguardWorkstationTemplate {
+        user_name: &random_name(10),
+        user_private_key: &private_key,
+        user_nets: &user_nets,
+        server_public_key: &read_server_key(SERVER_PUBLIC_KEY),
+        default_server_endpoint: &format!("{}:{}", config().server_public_ip, &random_word()),
+    };
+
+    format!("{}\n", user_template.render().unwrap_or_default())
 }

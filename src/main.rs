@@ -16,6 +16,7 @@
 #[macro_use]
 extern crate rocket;
 
+use crate::common::new_decoy;
 use crate::config::config;
 use crate::config::validate_config;
 use rocket::request::Request;
@@ -42,13 +43,13 @@ const SERVER_PRIVATE_KEY: &str = "/Services/Wireguard-tools/private.key";
 
 #[catch(500)]
 fn internal_error() -> &'static str {
-    ""
+    "Internal Error."
 }
 
 
 #[catch(404)]
 fn not_found(_req: &Request) -> String {
-    "".to_string()
+    new_decoy()
 }
 
 
