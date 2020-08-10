@@ -28,7 +28,7 @@ pub fn generate_wireguard_keys() -> (String, String) {
 
 pub fn commit_wireguard_configuration(user_ipv4: &str) {
     // NOTE: Create bridge0 with router ip assigned to it. Don't assign .1.1 to server-side wg
-    println!("Setting up bridge0");
+    // println!("Setting up bridge0");
     run(
         "/dev/stderr",
         BridgeRouterAliasTemplate {
@@ -39,7 +39,7 @@ pub fn commit_wireguard_configuration(user_ipv4: &str) {
     .ok();
 
     // for ipv6: route -6 add fde4:82c4:04eb:dd8d::1:5 -interface wg0
-    println!("Setting up Wireguard routes for: {}", &user_ipv4);
+    // println!("Setting up Wireguard routes for: {}", &user_ipv4);
     run(
         "/dev/stderr",
         RouteDelTemplate {
@@ -56,7 +56,7 @@ pub fn commit_wireguard_configuration(user_ipv4: &str) {
     )
     .ok();
 
-    println!("Synchronizing server configuration");
+    // println!("Synchronizing server configuration");
     run(
         "/dev/stdout",
         WireguardSyncConfigTemplate {
