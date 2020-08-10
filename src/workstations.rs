@@ -1,3 +1,4 @@
+use crate::config::*;
 use crate::templates::WireguardServerConfigurationEntryTemplate;
 use crate::templates::WireguardServerConfigurationTemplate;
 use crate::templates::WireguardWorkstationTemplate;
@@ -5,12 +6,8 @@ use crate::utils::find_last_ipv4;
 use crate::utils::generate_wireguard_keys;
 use crate::utils::next_workstation_ipv4;
 use crate::utils::write_atomic;
-use crate::MAIN_MASK;
-use crate::SERVER_IP;
-use crate::SERVER_PORT;
 use crate::SERVER_PRIVATE_KEY;
 use crate::SERVER_PUBLIC_KEY;
-use crate::SERVER_ROUTER_IP;
 use askama::Template;
 use rocket::{ignite, Rocket};
 use std::{fs::read_to_string, path::Path};
@@ -57,7 +54,7 @@ pub fn new(name: String) -> String {
 
         let last_ipv4 = match find_last_ipv4(all_used_ipv4s) {
             Some(ipv4) => ipv4,
-            None => SERVER_ROUTER_IP.to_string(), /* if list of entries is empty, assign next address after router */
+            None => format!("{}.1.1", config().main_net), /* if list of entries is empty, assign next address after router */
         };
         match next_workstation_ipv4(&last_ipv4) {
             Some(ipv4) => ipv4,
@@ -71,11 +68,11 @@ pub fn new(name: String) -> String {
         &format!("{},{}", user_ipv4, public_key),
     );
 
-    let user_nets = format!("{}{}", user_ipv4, MAIN_MASK);
+    let user_nets = format!("{}{}", user_ipv4, config().main_net_mask);
 
     // server main template
     let server_template = (WireguardServerConfigurationTemplate {
-        server_port: SERVER_PORT,
+        server_port: &format!("{}", config().server_port),
         server_private_key: &read_to_string(SERVER_PRIVATE_KEY)
             .unwrap_or_default()
             .replace('\n', ""),
@@ -136,7 +133,11 @@ pub fn new(name: String) -> String {
         server_public_key: &read_to_string(SERVER_PUBLIC_KEY)
             .unwrap_or_default()
             .replace('\n', ""),
-        default_server_endpoint: &format!("{}:{}", SERVER_IP, SERVER_PORT),
+        default_server_endpoint: &format!(
+            "{}:{}",
+            config().server_public_ip,
+            config().server_port
+        ),
     };
 
     format!("{}\n", user_template.render().unwrap_or_default())
