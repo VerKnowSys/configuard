@@ -13,3 +13,6 @@ base64 = "0.12.3"
 rand_core = { version = "0.5.1", default-features = false, features = ["getrandom"] }
 x25519-dalek = "0.6.0"
 walkdir = "2.3.1"
+toml = "0.5.6"
+serde_derive = "1.0.114"
+serde = "1.0.114"
