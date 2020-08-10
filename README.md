@@ -14,13 +14,12 @@ server_public_ip = "1.2.3.4" # your external wireguard server ipv4 address
 server_port = 51194 # some open port on server endpoint
 wireguard_bin = "/Software/Wireguard-tools/exports/wg" # full path to wg utility
 wireguard_conf = "/Services/Wireguard-tools/wg0.conf" # full path to wg0.conf
-
 ```
 
 
 ## Usage:
 
-- Start service and proxy it how you like
+- Start service locally on `127.1:8000`:
   `cargo run`
 
 - Generate new workstation configuration:
