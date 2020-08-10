@@ -31,7 +31,7 @@ pub fn new(name: String) -> String {
         let all_used_ipv4s = read_all_used_ipv4(INSTANCES_DIR);
         let last_ipv4 = match find_last_ipv4(all_used_ipv4s) {
             Some(ipv4) => ipv4,
-            None => format!("{}.1.1", config().main_net), /* if list of entries is empty, assign next address after router */
+            None => format!("{}.2.1", config().main_net), /* if list of entries is empty, assign next address with c+1 octet */
         };
         match next_instance_ipv4(&last_ipv4) {
             Some(ipv4) => ipv4,
