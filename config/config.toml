@@ -1,3 +1,4 @@
+uuid = "" # uuid is unique part of a request path
 main_net = "100.64"
 main_net_mask = "/10"
 server_public_ip = "" # your external wireguard server ipv4 address

@@ -39,11 +39,11 @@ fn start() -> Rocket {
     validate_config(&config());
     ignite()
         .mount(
-            "/796A425F-DD50-4A61-B535-92920EA54818/wireguard/new/instance/",
+            &format!("/{}/wireguard/new/instance/", config().uuid),
             routes![instances::new],
         )
         .mount(
-            "/796A425F-DD50-4A61-B535-92920EA54818/wireguard/new/workstation/",
+            &format!("/{}/wireguard/new/workstation/", config().uuid),
             routes![workstations::new],
         )
 }

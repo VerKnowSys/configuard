@@ -3,6 +3,7 @@ use serde_derive::Deserialize;
 
 #[derive(Deserialize)]
 pub struct Config {
+    pub uuid: String,
     pub main_net: String,
     pub main_net_mask: String,
     pub server_port: u16,
@@ -28,6 +29,9 @@ pub fn validate_config(config: &Config) {
     }
     if config.main_net_mask.is_empty() {
         panic!("Config: main_net_mask can't be empty!")
+    }
+    if config.uuid.is_empty() {
+        panic!("Config: uuid can't be empty!")
     }
     if config.server_port == 0 {
         panic!("Config: server_port can't be 0!")
