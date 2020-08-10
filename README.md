@@ -20,7 +20,7 @@ wireguard_conf = "/Services/Wireguard-tools/wg0.conf" # full path to wg0.conf
 ## Usage:
 
 - Start service locally on `127.1:8000`:
-  `cargo run`
+  `ROCKET_address="127.0.0.1" ROCKET_port=8000 cargo run`
 
 - Generate new workstation configuration:
   `curl -X POST http://localhost:8000/your-configured-uuid/wireguard/new/workstation/dmilith`
