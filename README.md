@@ -1,6 +1,10 @@
 # WireGuard Service
 
 
+## What Am I Watching
+
+This is HTTP service that manages WireGuard-server configuration via API.
+
 
 ## Assumptions:
 
@@ -38,11 +42,11 @@ wireguard_conf = "/Services/Wireguard-tools/wg0.conf" # full path to wg0.conf
 - Start service locally on `127.1:8000`:
   `ROCKET_ENV=production ROCKET_address="localhost" ROCKET_port=8000 cargo run`
 
-- Generate new workstation configuration:
-  `curl -X POST http://localhost:8000/your-configured-uuid/wireguard/new/workstation/dmilith`
+- Generate workstation configuration (with address re-use - both auth keys are always generated, but existing address will not change):
+  `curl -X POST http://localhost:8000/your-configured-uuid/wireguard/workstation/dmilith`
 
-- Generate new server-instance configuration:
-  `curl -X POST http://localhost:8000/your-configured-uuid/wireguard/new/instance/my-server`
+- Generate server-instance configuration (also with address re-use):
+  `curl -X POST http://localhost:8000/your-configured-uuid/wireguard/instance/my-server`
 
 
 

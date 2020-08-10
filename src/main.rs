@@ -45,11 +45,11 @@ fn start() -> Rocket {
     validate_config(&config());
     ignite()
         .mount(
-            &format!("/{}/wireguard/new/instance/", config().uuid),
+            &format!("/{}/wireguard/instance/", config().uuid),
             routes![instances::new],
         )
         .mount(
-            &format!("/{}/wireguard/new/workstation/", config().uuid),
+            &format!("/{}/wireguard/workstation/", config().uuid),
             routes![workstations::new],
         )
 }
