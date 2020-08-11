@@ -14,6 +14,7 @@ use crate::SERVER_PRIVATE_KEY;
 use crate::SERVER_PUBLIC_KEY;
 use askama::Template;
 use rand_core::OsRng;
+use std::ffi::OsStr;
 use std::fs::read_to_string;
 use walkdir::{DirEntry, WalkDir};
 use x25519_dalek::{PublicKey, StaticSecret};
@@ -83,15 +84,10 @@ pub fn render_all_entries() -> String {
         .zip(&all_entries_ipv4s_and_pubkeys)
         .map(|(config_name, (ip, pubkey))| {
             // entries
-            let user_from_file = config_name
-                .file_name()
-                .to_os_string()
-                .into_string()
-                .unwrap_or_default();
             format!(
                 "{}\n\n",
                 (WireguardServerConfigurationEntryTemplate {
-                    user_name: &user_from_file,
+                    user_name: &file_name_to_string(config_name.file_name()),
                     user_ips: &ip,
                     user_public_key: pubkey,
                 })
@@ -113,12 +109,22 @@ pub fn render_server_config_head() -> String {
 }
 
 
+pub fn is_not_hidden_file(file: &DirEntry) -> bool {
+    file.path().is_file() && !file_name_to_string(file.file_name()).starts_with('.')
+}
+
+
 pub fn read_files_list(from_subdir: &str) -> Vec<DirEntry> {
     WalkDir::new(from_subdir)
         .into_iter()
         .filter_map(|v| v.ok())
-        .filter(|entry| entry.path().is_file())
+        .filter(is_not_hidden_file)
         .collect()
+}
+
+
+pub fn file_name_to_string(name: &OsStr) -> String {
+    name.to_os_string().into_string().unwrap_or_default()
 }
 
 
@@ -126,7 +132,7 @@ pub fn read_all_used_ipv4(from_subdir: &str) -> Vec<String> {
     WalkDir::new(&format!("{}{}", ENTRIES_DIR, from_subdir))
         .into_iter()
         .filter_map(|v| v.ok())
-        .filter(|file| file.path().is_file())
+        .filter(is_not_hidden_file)
         .filter_map(|file| read_to_string(file.path()).ok())
         .filter_map(|line| first_of_pair(&line))
         .collect()
