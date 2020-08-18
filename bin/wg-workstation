@@ -17,6 +17,7 @@ if [ ! -f "/etc/sudoers.d/wireguard" ]; then
     echo "${USER} ALL=(ALL) NOPASSWD: ${wireguard_quick} *" > /tmp/wireguard
     sudo install -m600 -o root /tmp/wireguard /etc/sudoers.d/wireguard
 fi
+chmod 600 "${wireguard_conf}"
 
 # main():
 while true; do
@@ -25,7 +26,7 @@ while true; do
     if [ "0" != "${?}" ]; then
         echo "Restarting ${_wg_interface} tunnel…"
         eval "sudo ${wireguard_quick} down ${_wg_interface}"
-        eval "sudo ${wireguard_quick} up ${_wg_interface}"
+        eval "sudo ${wireguard_quick} up ${_wg_interface} &"
     fi
     sleep "${_check_interval}"
 done
