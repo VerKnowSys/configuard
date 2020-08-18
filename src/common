@@ -1,0 +1,66 @@
+#!/bin/sh
+
+_sofin_loader="/Software/Sofin/share/loader"
+_configuard_config="config/config.toml"
+_profile="${HOME}/.profile"
+_os_name="$(uname)"
+_check_interval="5" # seconds
+_wg_interface="wg0"
+
+
+define_process_name () {
+    case "${_os_name}" in
+        Linux)
+            # NOTE: currently only Linux supports stable kernel module for wg:
+            _wg_name="wg-crypt-wg0"
+            ;;
+
+        *)
+            # NOTE: use go wrapper to create wg interface (usermode - slower):
+            _wg_name="wireguard-go"
+            ;;
+    esac
+}
+
+
+# load functions and env variables
+load_configuard () {
+    if [ -f "${_sofin_loader}" ]; then
+        . "${_sofin_loader}"
+    fi
+    if [ -f "${_progile}" ]; then
+        . "${_profile}"
+    fi
+    if [ -f "${_configuard_config}" ]; then
+        # load configuard configuration is easy from shell:
+        eval "$(sed -e 's|#.*||; s| ||g' < "${_configuard_config}")"
+    fi
+    # set wg-quick path from loaded config:
+    wireguard_quick="${wireguard_bin}-quick"
+}
+
+
+validate_config () {
+    if [ -z "${wireguard_bin}" ]; then
+        error "Configuration file: ${_configuard_config} lacks value of: wireguard_bin"
+    fi
+    if [ -z "${wireguard_conf}" ]; then
+        error "Configuration file: ${_configuard_config} lacks value of: wireguard_conf"
+    fi
+    if [ ! -f "${wireguard_conf}" ]; then
+        error "No configuration file found: ${wireguard_conf}"
+    fi
+    if [ ! -x "${wireguard_bin}" ]; then
+        error "Wireguard binary not found! Install it first: s i Wireguard-tools"
+    fi
+    if [ ! -x "${wireguard_quick}" ]; then
+        error "Wireguard quick binary not found! Install it first: s i Wireguard-tools"
+    fi
+}
+
+
+# helpers for Darwin and Linux case (no Sofin by default)
+error () {
+    echo "ERROR: ${*}"
+    exit 1
+}

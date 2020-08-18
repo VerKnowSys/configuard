@@ -1,0 +1,31 @@
+#!/bin/sh
+
+. src/common
+
+load_configuard
+validate_config
+define_process_name
+
+
+if [ "Darwin" != "${_os_name}" ]; then
+    error "Wireguard workstation is supposed to be Darwin host!"
+fi
+
+# validate sudoers entry existence:
+if [ ! -f "/etc/sudoers.d/wireguard" ]; then
+    echo "/etc/sudoers.d/wireguard not found! Default one will be created."
+    echo "${USER} ALL=(ALL) NOPASSWD: ${wireguard_quick} *" > /tmp/wireguard
+    sudo install -m600 -o root /tmp/wireguard /etc/sudoers.d/wireguard
+fi
+
+# main():
+while true; do
+    # validate that wireguard interface's been created:
+    pgrep "${_wg_name}" >/dev/null 2>&1
+    if [ "0" != "${?}" ]; then
+        echo "Restarting ${_wg_interface} tunnel…"
+        eval "sudo ${wireguard_quick} down ${_wg_interface}"
+        eval "sudo ${wireguard_quick} up ${_wg_interface}"
+    fi
+    sleep "${_check_interval}"
+done
