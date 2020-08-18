@@ -1,0 +1,7 @@
+uuid = "796A425F-DD50-4A61-B535-92920EA54818" # uuid is unique part of a request path
+main_net = "100.64"
+main_net_mask = "/10"
+server_public_ip = "188.226.147.52" # your external wireguard server ipv4 address
+server_port = 61194
+wireguard_bin = "/usr/local/bin/wg"
+wireguard_conf = "/usr/local/etc/wireguard/wg0.conf"
