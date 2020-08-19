@@ -38,13 +38,13 @@ wireguard_conf = "/Services/Wireguard-tools/wg0.conf" # full path to wg0.conf
 
 ## Usage
 
-### Workstation side, Darwin only:
+### workstation side, Darwin only:
 
 - Install latest version of Wireguard tools:
   `brew install wireguard-tools`
 
 - Fetch your configuration from your configuard server and store it in local configuration file:
-  `curl -XPOST … > /usr/local/etc/wireguard/wg0.conf`
+  `curl -X POST http://localhost:8000/your-configured-uuid/wireguard/workstation/your-user-name > /usr/local/etc/wireguard/wg0.conf`
 
 - Use system-specific configuration:
   `cp config/config.toml.$(uname) config/config.toml`
@@ -52,13 +52,13 @@ wireguard_conf = "/Services/Wireguard-tools/wg0.conf" # full path to wg0.conf
 - Run client script on your workstation:
   Install Wireguard GUI from AppStore or `bin/wg-workstation` or `wg-quick up wg0` (background)
 
-### Remote-host-instance side, Linux or FreeBSD only:
+### remote-host-instance side, Linux or FreeBSD only:
 
 - Install latest version of Wireguard tools:
   `apt install -y wireguard-tools wireguard-dkms` (Ubuntu 18.x) or `s i Wireguard-tools` (FreeBSD 12.x + svdOS)
 
 - Fetch your configuration from your configuard server and store it in local configuration file:
-  `curl -XPOST … > /etc/wireguard/wg0.conf` (Ubuntu 18.x) or `/Services/Wireguard-tools/wg0.conf` (FreeBSD 12.x + svdOS)
+  `curl -X POST http://localhost:8000/your-configured-uuid/wireguard/instance/your-instance-name > /etc/wireguard/wg0.conf` (Ubuntu 18.x) or `curl -X POST http://localhost:8000/your-configured-uuid/wireguard/instance/your-instance-name > /Services/Wireguard-tools/wg0.conf` (FreeBSD 12.x + svdOS)
 
 - Use system-specific configuration:
   `cp config/config.toml.$(uname) config/config.toml`
@@ -66,16 +66,10 @@ wireguard_conf = "/Services/Wireguard-tools/wg0.conf" # full path to wg0.conf
 - Run client script on your instance:
   `bin/wg-instance` (foreground) or `wg-quick up wg0` (background)
 
-### Configuard server, FreeBSD only:
+### configuard server:
 
 - Start service locally on `127.1:8000`:
   `ROCKET_ENV=production ROCKET_address="localhost" ROCKET_port=8000 cargo run`
-
-- Generate workstation configuration (with address re-use - both auth keys are always generated, but existing address will not change):
-  `curl -X POST http://localhost:8000/your-configured-uuid/wireguard/workstation/dmilith`
-
-- Generate server-instance configuration (also with address re-use):
-  `curl -X POST http://localhost:8000/your-configured-uuid/wireguard/instance/my-server`
 
 
 ## License:

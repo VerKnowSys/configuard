@@ -1,3 +1,4 @@
 /target
 entries/**
 *.lock
+config/config.toml
