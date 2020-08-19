@@ -21,6 +21,7 @@ extern crate rocket;
 use crate::common::new_decoy;
 use crate::config::config;
 use crate::config::validate_config;
+use regex::Regex;
 use rocket::request::Request;
 use rocket::{ignite, Rocket};
 
@@ -41,6 +42,12 @@ const INSTANCES_DIR: &str = "instances/";
 const WORKSTATIONS_DIR: &str = "workstations/";
 const SERVER_PUBLIC_KEY: &str = "/Services/Wireguard-tools/pub.key";
 const SERVER_PRIVATE_KEY: &str = "/Services/Wireguard-tools/private.key";
+
+
+lazy_static! {
+    // this will be reused after first regex compilation:
+    static ref FILE_NAME_REGEX: Regex = Regex::new(r"^[a-zA-Z0-9 -\.]{3,}$").unwrap();
+}
 
 
 #[catch(500)]

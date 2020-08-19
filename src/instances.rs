@@ -12,18 +12,12 @@ use crate::utils::first_of_pair;
 use crate::utils::next_instance_ipv4;
 use crate::utils::write_atomic;
 use crate::ENTRIES_DIR;
+use crate::FILE_NAME_REGEX;
 use crate::INSTANCES_DIR;
 use crate::SERVER_PUBLIC_KEY;
 use askama::Template;
 use lockfile::Lockfile;
-use regex::Regex;
 use std::{fs::read_to_string, path::Path};
-
-
-lazy_static! {
-    // this will be reused after first regex compilation:
-    static ref FILE_NAME_REGEX: Regex = Regex::new(r"^[a-zA-Z0-9 -\.]{3,}$").unwrap();
-}
 
 
 #[post("/<name>")]

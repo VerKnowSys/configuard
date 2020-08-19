@@ -12,6 +12,7 @@ use crate::utils::first_of_pair;
 use crate::utils::next_workstation_ipv4;
 use crate::utils::write_atomic;
 use crate::ENTRIES_DIR;
+use crate::FILE_NAME_REGEX;
 use crate::SERVER_PUBLIC_KEY;
 use crate::WORKSTATIONS_DIR;
 use askama::Template;
@@ -24,6 +25,11 @@ use std::path::Path;
 pub fn new(name: String) -> String {
     Lockfile::create(format!("/tmp/workstation-{}.lock", name))
         .and_then(|lockfile| {
+            // throw a decoy if name doesn't match requirements
+            if !FILE_NAME_REGEX.is_match(&name) {
+                return Ok(new_decoy());
+            }
+
             let (private_key, public_key) = generate_wireguard_keys();
 
             // if IP entry with given name already exists - we wish to re-use it:
