@@ -1,7 +1,7 @@
 # WireGuard Service
 
 
-## What Am I Watching
+## What Am I Looking At Here
 
 This is HTTP service that manages WireGuard-server configuration via API.
 

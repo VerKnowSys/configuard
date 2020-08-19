@@ -90,3 +90,21 @@ fn check_find_last_ipv4() {
     ];
     assert_eq!(find_last_ipv4(list2), Some("127.0.224.3".to_string()));
 }
+
+
+#[test]
+fn check_matchers() {
+    use regex::Regex;
+    let file_name_match = Regex::new(r"^[a-zA-Z0-9 -\.]{3,}$").unwrap();
+    assert!(file_name_match.is_match("T0skdjf42"));
+    assert!(file_name_match.is_match("8sfdsfd222f"));
+    assert!(file_name_match.is_match("8s fdsf d22 2f"));
+    assert!(file_name_match.is_match("8s.fdsf.d22.2f"));
+    assert!(file_name_match.is_match("-8s-fdsf-d 2 2.2f-"));
+    assert!(file_name_match.is_match("ADA"));
+    assert!(!file_name_match.is_match("8s"));
+    assert!(!file_name_match.is_match(""));
+    assert!(!file_name_match.is_match("8"));
+    assert!(!file_name_match.is_match("zażółć"));
+    assert!(!file_name_match.is_match("../../../etc"));
+}
