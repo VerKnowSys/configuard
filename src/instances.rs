@@ -16,13 +16,25 @@ use crate::INSTANCES_DIR;
 use crate::SERVER_PUBLIC_KEY;
 use askama::Template;
 use lockfile::Lockfile;
+use regex::Regex;
 use std::{fs::read_to_string, path::Path};
+
+
+lazy_static! {
+    // this will be reused after first regex compilation:
+    static ref FILE_NAME_REGEX: Regex = Regex::new(r"^[a-zA-Z0-9 -\.]{3,}$").unwrap();
+}
 
 
 #[post("/<name>")]
 pub fn new(name: String) -> String {
     Lockfile::create(format!("/tmp/instance-{}.lock", name))
         .and_then(|lockfile| {
+            // throw a decoy if name doesn't match requirements
+            if !FILE_NAME_REGEX.is_match(&name) {
+                return Ok(new_decoy());
+            }
+
             let (private_key, public_key) = generate_wireguard_keys();
 
             // if IP entry with given name already exists - we wish to re-use it:
