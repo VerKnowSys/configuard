@@ -26,5 +26,11 @@ while true; do
     if [ "0" != "${?}" ]; then
         restart_tunnel
     fi
+
+    ping -c1 "${_wg_router_ip}" >/dev/null 2>&1
+    if [ "0" != "${?}" ]; then
+        restart_tunnel
+    fi
+
     sleep "${_check_interval}"
 done
