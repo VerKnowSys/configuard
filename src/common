@@ -6,6 +6,7 @@ _profile="${HOME}/.profile"
 _os_name="$(uname)"
 _check_interval="5" # seconds
 _wg_interface="wg0"
+_wg_router_ip="100.64.1.1"
 
 
 define_process_name () {
