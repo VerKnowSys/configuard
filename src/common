@@ -9,6 +9,13 @@ _wg_interface="wg0"
 _wg_router_ip="100.64.1.1"
 
 
+restart_tunnel () {
+    echo "Restarting ${_wg_interface} tunnel…"
+    eval "${wireguard_quick} down ${_wg_interface}"
+    eval "${wireguard_quick} up ${_wg_interface} &"
+}
+
+
 define_process_name () {
     case "${_os_name}" in
         Linux)

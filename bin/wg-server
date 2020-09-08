@@ -16,9 +16,7 @@ while true; do
     # validate that wireguard interface's been created:
     pgrep "${_wg_name}" >/dev/null 2>&1
     if [ "0" != "${?}" ]; then
-        echo "Restarting ${_wg_interface} tunnel…"
-        eval "${wireguard_quick} down ${_wg_interface}"
-        eval "${wireguard_quick} up ${_wg_interface} &"
+        restart_tunnel
     fi
     sleep "${_check_interval}"
 done
