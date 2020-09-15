@@ -12,4 +12,4 @@ stop () {
 ignite \
     name="Wireguard-tools" \
     action="${1:-status}" \
-    start_cmd="'daemon -P /Services/Wireguard-tools/service.pid /Services/Wireguard-tools/wg-instance >> /Services/Wireguard-tools/service.log 2>> /Services/Wireguard-tools/service.log'"
+    start_cmd="'daemon -P /Services/Wireguard-tools/service.pid /Services/Wireguard-tools/wg-instance >> /Services/Wireguard-tools/service.log 2>> /Services/Wireguard-tools/service.log &'"
