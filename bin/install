@@ -11,6 +11,9 @@ define_process_name
 
 case "${_os_name}" in
     Darwin)
+        if [ ! -f "${wireguard_conf}" ]; then
+            error "Request Wireguard configuration first!"
+        fi
         mkdir -p "/usr/local/bin/" "/usr/local/etc/"
         install -m 755 -v "bin/wg-workstation" "/usr/local/bin/wg-workstation"
         install -m 600 -v "src/common" "/usr/local/etc/wg-common"
