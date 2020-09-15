@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # uninstall launchd script that manages WG client
 # blame: @dmilith
 
@@ -12,5 +12,13 @@ case "${_os_name}" in
     Darwin)
         launchctl unload -w "${HOME}/Library/LaunchAgents/com.wireguard.plist"
         rm -vf "/usr/local/bin/wg-workstation" "${HOME}/Library/LaunchAgents/com.wireguard.plist"
+        ;;
+
+    FreeBSD)
+        igni wg stop
+        rm /Shared/Igniters/wg.igni
+        for _pid in $(ps axv | grep -v grep | grep wg-quick | awk '{print $1}'); do
+            kill -TERM "${_pid}"
+        done
         ;;
 esac
