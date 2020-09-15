@@ -1,0 +1,15 @@
+#!/bin/sh
+# Load common.igni with common tasks:
+. /Shared/Igniters/common.igni
+
+stop () {
+    wg-quick down wg0
+    deathnote "Wireguard-tools"
+    sleep 1
+}
+
+# Initialize service:
+ignite \
+    name="Wireguard-tools" \
+    action="${1:-status}" \
+    start_cmd="'cd /Projects/configuard && daemon -P /Services/Wireguard-tools/service.pid bin/wg-instance >> /Services/Wireguard-tools/service.log 2>> /Services/Wireguard-tools/service.log'"

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-export PATH="/usr/local/bin:/usr/bin:/bin"
+export PATH="/usr/local/bin:/usr/bin:/bin:/sbin:/Software/Wireguard-tools/exports"
 
 _sofin_loader="/Software/Sofin/share/loader"
 _configuard_config="config/config.toml"
