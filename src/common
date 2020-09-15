@@ -12,7 +12,7 @@ _wg_router_ip="100.64.1.1"
 restart_tunnel () {
     echo "Restarting ${_wg_interface} tunnel…"
     case "${_os_name}" in
-        Darwin|Linux)
+        Darwin)
             eval "sudo ${wireguard_quick} down ${_wg_interface}"
             eval "sudo ${wireguard_quick} up ${_wg_interface} &"
             ;;
