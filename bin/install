@@ -8,12 +8,16 @@ load_configuard
 validate_config
 define_process_name
 
+if [ ! -f "${_configuard_config}" ]; then
+    error "No configuration file: ${_configuard_config}! Try: 'install config/config.toml.\$(uname) config/config.toml'"
+fi
+
+if [ ! -f "${wireguard_conf}" ]; then
+    error "Request Wireguard configuration first!"
+fi
 
 case "${_os_name}" in
     Darwin)
-        if [ ! -f "${wireguard_conf}" ]; then
-            error "Request Wireguard configuration first!"
-        fi
         mkdir -p "/usr/local/bin/" "/usr/local/etc/"
         install -m 755 -v "bin/wg-workstation" "/usr/local/bin/wg-workstation"
         install -m 600 -v "src/common" "/usr/local/etc/wg-common"
@@ -25,5 +29,19 @@ case "${_os_name}" in
         launchctl unload -w "${HOME}/Library/LaunchAgents/com.wireguard.plist" 2>/dev/null
         sleep 2
         launchctl load -w "${HOME}/Library/LaunchAgents/com.wireguard.plist"
+        ;;
+
+    FreeBSD)
+        mkdir -p "/Services/Wireguard-tools"
+        install -m 755 -v "bin/wg-instance" "/Services/Wireguard-tools/wg-instance"
+        install -m 600 -v "src/common" "/Services/Wireguard-tools/wg-common"
+        sed -i '' -e 's|\. src/common|. /Services/Wireguard-tools/wg-common|' "/Services/Wireguard-tools/wg-instance"
+        install -m 600 -v "config/config.toml" "/Services/Wireguard-tools/wg-config.toml"
+        sed -i '' -e 's|config/config.toml|/Services/Wireguard-tools/wg-config.toml|' "/Services/Wireguard-tools/wg-common"
+
+        install -m 755 -v "igniters/wg.igni" "/Shared/Igniters/wg.igni"
+        igni wg stop
+        sleep 2
+        igni wg start
         ;;
 esac
