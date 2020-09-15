@@ -1,0 +1,26 @@
+#!/bin/sh
+# install launchd script that starts and keeps up Wireguard tunnel
+# blame: @dmilith
+
+. src/common
+
+load_configuard
+validate_config
+define_process_name
+
+
+case "${_os_name}" in
+    Darwin)
+        mkdir -p "/usr/local/bin/" "/usr/local/etc/"
+        install -m 755 -v "bin/wg-workstation" "/usr/local/bin/wg-workstation"
+        install -m 600 -v "src/common" "/usr/local/etc/wg-common"
+        sed -i '' -e 's|\. src/common|. /usr/local/etc/wg-common|' "/usr/local/bin/wg-workstation"
+        install -m 600 -v "config/config.toml" "/usr/local/etc/wg-config.toml"
+        sed -i '' -e 's|config/config.toml|/usr/local/etc/wg-config.toml|' "/usr/local/etc/wg-common"
+
+        install -m 600 -v "launchd/com.wireguard.plist" "${HOME}/Library/LaunchAgents/com.wireguard.plist"
+        launchctl unload -w "${HOME}/Library/LaunchAgents/com.wireguard.plist" 2>/dev/null
+        sleep 2
+        launchctl load -w "${HOME}/Library/LaunchAgents/com.wireguard.plist"
+        ;;
+esac

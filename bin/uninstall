@@ -1,0 +1,16 @@
+#!/bin/bash
+# uninstall launchd script that manages WG client
+# blame: @dmilith
+
+. src/common
+
+load_configuard
+validate_config
+define_process_name
+
+case "${_os_name}" in
+    Darwin)
+        launchctl unload -w "${HOME}/Library/LaunchAgents/com.wireguard.plist"
+        rm -vf "/usr/local/bin/wg-workstation" "${HOME}/Library/LaunchAgents/com.wireguard.plist"
+        ;;
+esac
