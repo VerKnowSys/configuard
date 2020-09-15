@@ -1,5 +1,7 @@
 #!/bin/sh
 
+export PATH="/usr/local/bin:/usr/bin:/bin"
+
 _sofin_loader="/Software/Sofin/share/loader"
 _configuard_config="config/config.toml"
 _profile="${HOME}/.profile"
