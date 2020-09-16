@@ -10,13 +10,6 @@ define_process_name
 if [ "Darwin" != "${_os_name}" ]; then
     error "Wireguard workstation is supposed to be Darwin host!"
 fi
-
-# validate sudoers entry existence:
-if [ ! -f "/etc/sudoers.d/wireguard" ]; then
-    echo "/etc/sudoers.d/wireguard not found! Default one will be created."
-    echo "${USER} ALL=(ALL) NOPASSWD: ${wireguard_quick} *" > /tmp/wireguard
-    sudo install -m600 -o root /tmp/wireguard /etc/sudoers.d/wireguard
-fi
 chmod 600 "${wireguard_conf}"
 
 # main():

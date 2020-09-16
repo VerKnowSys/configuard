@@ -18,6 +18,13 @@ fi
 
 case "${_os_name}" in
     Darwin)
+        # validate sudoers entry existence:
+        if [ ! -f "/etc/sudoers.d/wireguard" ]; then
+            echo "/etc/sudoers.d/wireguard not found! Default one will be created."
+            echo "${USER} ALL=(ALL) NOPASSWD: ${wireguard_quick} *" > /tmp/wireguard
+            sudo install -m600 -o root /tmp/wireguard /etc/sudoers.d/wireguard
+        fi
+
         mkdir -p "/usr/local/bin/" "/usr/local/etc/"
         install -m 755 -v "bin/wg-workstation" "/usr/local/bin/wg-workstation"
         install -m 600 -v "src/common" "/usr/local/etc/wg-common"
