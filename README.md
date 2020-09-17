@@ -50,7 +50,7 @@ wireguard_conf = "/Services/Wireguard-tools/wg0.conf" # full path to wg0.conf
   `cp config/config.toml.$(uname) config/config.toml`
 
 - Run client script on your workstation:
-  Install Wireguard GUI from AppStore or `bin/wg-workstation` or `wg-quick up wg0` (background)
+  Install Wireguard GUI from AppStore or `bin/wg-workstation` or `bin/install` (background)
 
 ### remote-host-instance side, Linux or FreeBSD only:
 
@@ -64,7 +64,7 @@ wireguard_conf = "/Services/Wireguard-tools/wg0.conf" # full path to wg0.conf
   `cp config/config.toml.$(uname) config/config.toml`
 
 - Run client script on your instance:
-  `bin/wg-instance` (foreground) or `wg-quick up wg0` (background)
+  `bin/wg-instance` (foreground) or `bin/install` (background)
 
 ### configuard server:
 
