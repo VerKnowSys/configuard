@@ -18,12 +18,12 @@ extern crate lazy_static;
 #[macro_use]
 extern crate rocket;
 
+use crate::common::new_decoy;
 use crate::config::config;
 use crate::config::validate_config;
 use regex::Regex;
 use rocket::request::Request;
 use rocket::{ignite, Rocket};
-
 
 mod common;
 mod config;
