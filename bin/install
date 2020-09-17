@@ -47,6 +47,11 @@ case "${_os_name}" in
         sed -i '' -e 's|config/config.toml|/Services/Wireguard-tools/wg-config.toml|' "/Services/Wireguard-tools/wg-common"
 
         install -m 755 -v "igniters/wg.igni" "/Shared/Igniters/wg.igni"
+        _original_cron="$(crontab -l)"
+        crontab -l | grep -F "igni wg watch" >/dev/null 2>&1
+        if [ "0" != "${?}" ]; then
+            printf "%b\n%b\n" "${_original_cron}" "* * * * * igni wg watch" | crontab -
+        fi
         igni wg stop
         sleep 2
         igni wg start
