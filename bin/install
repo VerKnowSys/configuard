@@ -56,4 +56,18 @@ case "${_os_name}" in
         sleep 2
         igni wg start
         ;;
+
+    Linux)
+        mkdir -p "/etc/wireguard"
+        install -m 755 -v "bin/wg-instance" "/usr/local/bin/wg-instance"
+        install -m 600 -v "src/common" "/etc/wireguard/wg-common"
+        sed -i '' -e 's|\. src/common|. /etc/wireguard/wg-common|' "/usr/local/bin/wg-instance"
+        install -m 600 -v "config/config.toml" "/etc/wireguard/wg-config.toml"
+        sed -i '' -e 's|config/config.toml|/etc/wireguard/wg-config.toml|' "/etc/wireguard/wg-common"
+
+        install -m 755 -v "systemd/wg-instance.service" "/lib/systemd/system/wg-instance.service"
+        systemctl stop wg-instance.service
+        sleep 2
+        systemctl start wg-instance.service
+        ;;
 esac

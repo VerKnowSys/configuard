@@ -1,0 +1,12 @@
+[Unit]
+Description=Configuard instance script
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/usr/local/bin/wg-instance
+ExecStop=/bin/kill -s TERM $MAINPID
+PIDFile=/var/run/wireguard/wg-instance.pid
+
+[Install]
+WantedBy=multi-user.target
