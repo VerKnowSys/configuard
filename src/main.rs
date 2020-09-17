@@ -57,7 +57,7 @@ fn internal_error() -> &'static str {
 
 #[catch(404)]
 fn not_found(_req: &Request) -> String {
-    String::new()
+    new_decoy()
 }
 
 
