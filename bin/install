@@ -66,8 +66,8 @@ case "${_os_name}" in
         sed -i -e 's|config/config.toml|/etc/wireguard/wg-config.toml|' "/etc/wireguard/wg-common"
 
         install -m 755 -v "systemd/wg-instance.service" "/lib/systemd/system/wg-instance.service"
+        systemctl daemon-reload
         systemctl stop wg-instance.service
-        sleep 2
         systemctl start wg-instance.service
         ;;
 esac

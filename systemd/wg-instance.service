@@ -3,10 +3,9 @@ Description=Configuard instance script
 After=network.target
 
 [Service]
-Type=forking
+Type=simple
 ExecStart=/usr/local/bin/wg-instance
-ExecStop=/bin/kill -s TERM $MAINPID
-PIDFile=/var/run/wireguard/wg-instance.pid
+ExecStop=/usr/bin/wg-quick down wg0
 
 [Install]
 WantedBy=multi-user.target
