@@ -23,4 +23,11 @@ case "${_os_name}" in
         _stripped_cron="$(crontab -l | grep -Fv "igni wg watch")"
         printf "%b\n" "${_stripped_cron}" | crontab -
         ;;
+
+    Linux)
+        systemctl stop wg-instance.service
+        rm -f "/lib/systemd/system/wg-instance.service" "/usr/local/bin/wg-instance"
+        systemctl daemon-reload
+        ;;
+
 esac
