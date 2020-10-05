@@ -21,8 +21,9 @@ if [ "0" != "${?}" ]; then
     kldload if_tuntap
 fi
 
-if [ ! -f "${wireguard_conf}" ]; then
-    echo "No configuration found, generating new one…"
+if [ ! -f "/Services/Wireguard-tools/private.key" ] \
+|| [ ! -f "/Services/Wireguard-tools/pub.key" ]; then
+    echo "No private/pub keys found, generating new ones…"
     ${wireguard_bin} genkey > /Services/Wireguard-tools/private.key
     chmod 600 /Services/Wireguard-tools/private.key
     ${wireguard_bin} pubkey < /Services/Wireguard-tools/private.key > /Services/Wireguard-tools/pub.key
