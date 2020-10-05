@@ -35,5 +35,14 @@ if [ ! -f "/Services/Wireguard-tools/private.key" ] \
     ${wireguard_bin} pubkey < /Services/Wireguard-tools/private.key > /Services/Wireguard-tools/pub.key
 fi
 
+if [ ! -f "/Services/Wireguard-tools/wg0.conf" ]; then
+    echo "Creating wg0.conf stub"
+    cat > /Services/Wireguard-tools/wg0.conf <<EOF
+[Interface]
+ListenPort = ${server_port}
+PrivateKey = $(cat /Services/Wireguard-tools/private.key)
+EOF
+fi
+
 cargo build --release \
     && ROCKET_ADDRESS=${server_public_ip} ROCKET_PORT=${server_port} "target/release/configuard"
