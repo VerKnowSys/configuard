@@ -1,0 +1,16 @@
+#!/bin/sh
+# start configuard server
+# blame: @dmilith
+
+. src/common
+
+load_configuard
+validate_config
+
+which cargo >/dev/null 2>&1
+if [ "0" != "${?}" ]; then
+    error "Rust compiler is required to build configuard!"
+fi
+
+cargo build --release \
+    && ROCKET_PORT=${server_port} "target/release/configuard"
