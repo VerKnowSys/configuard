@@ -67,6 +67,8 @@ wireguard_conf = "/Services/Wireguard-tools/wg0.conf" # full path to wg0.conf
   `bin/wg-instance` (foreground) or `bin/install` (background)
 
 ### configuard server:
+- Default run (will generate all initally required files like private/pub keys):
+  `bin/configuard`
 
 - Start service locally on `127.1:8000`:
   `ROCKET_ENV=production ROCKET_address="localhost" ROCKET_port=8000 cargo run`

@@ -3,14 +3,30 @@
 # blame: @dmilith
 
 . src/common
+if [ -f "${HOME}/.profile" ]; then
+    echo "Loading .profile"
+    . "${HOME}/.profile"
+fi
 
 load_configuard
-validate_config
 
 which cargo >/dev/null 2>&1
 if [ "0" != "${?}" ]; then
     error "Rust compiler is required to build configuard!"
 fi
 
+kldstat | grep tuntap >/dev/null 2>&1
+if [ "0" != "${?}" ]; then
+    echo "Loading if_tuntap kernel module (required)"
+    kldload if_tuntap
+fi
+
+if [ ! -f "${wireguard_conf}" ]; then
+    echo "No configuration found, generating new one…"
+    ${wireguard_bin} genkey > /Services/Wireguard-tools/private.key
+    chmod 600 /Services/Wireguard-tools/private.key
+    ${wireguard_bin} pubkey < /Services/Wireguard-tools/private.key > /Services/Wireguard-tools/pub.key
+fi
+
 cargo build --release \
-    && ROCKET_PORT=${server_port} "target/release/configuard"
+    && ROCKET_ADDRESS=${server_public_ip} ROCKET_PORT=${server_port} "target/release/configuard"
