@@ -15,6 +15,12 @@ if [ "0" != "${?}" ]; then
     error "Rust compiler is required to build configuard!"
 fi
 
+ifconfig | grep bridge0 >/dev/null 2>&1
+if [ "0" != "${?}" ]; then
+    echo "Creating default bridge0"
+    ifconfig bridge0 create
+fi
+
 kldstat | grep tuntap >/dev/null 2>&1
 if [ "0" != "${?}" ]; then
     echo "Loading if_tuntap kernel module (required)"
