@@ -6,18 +6,28 @@ read -r _yourname
 echo "Validating existence of required software…"
 which wg >/dev/null || brew install wireguard-tools
 
+unset _configuard_link
 _ip="$(pass ops/wireguard/ip)"
 _port="$(pass ops/wireguard/port)"
 _uuid="$(pass ops/wireguard/uuid)"
 if [ -z "${_ip}" ] \
 || [ -z "${_port}" ] \
 || [ -z "${_uuid}" ]; then
-    echo "No wireguard values available in pass vault! Setup aborted!"
+    echo "No wireguard values available from pass vault!"
+    echo "If you wish to continue, please ask your DevOps about direct link to Configuard"
+    echo "Paste it below and hit [Enter] to continue"
+    read -r _configuard_link
+else
+    _configuard_link="http://${_ip}:${_port}/${_uuid}/wireguard/workstation"
+fi
+
+if [ -z "${_configuard_link}" ]; then
+    echo "Couldn't determine configuard link. Setup aborted!"
     exit 1
 fi
 
-echo "Proceeding with installation (you may be promped for password)…"
-curl -s -XPOST "http://${_ip}:${_port}/${_uuid}/wireguard/workstation/${_yourname}" > /usr/local/etc/wireguard/wg0.conf
+echo "Proceeding with installation (you may be promped for your user password)…"
+curl -s -XPOST "${_configuard_link}/${_yourname}" > /usr/local/etc/wireguard/wg0.conf
 curl -s "https://raw.githubusercontent.com/centrahq/dns-auto-set/master/bin/setup-dns-auto-set" | bash
 git clone "https://github.com/verknowsys/configuard" /tmp/configuard
 cd /tmp/configuard
