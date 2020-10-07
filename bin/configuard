@@ -17,8 +17,9 @@ fi
 
 ifconfig | grep bridge0 >/dev/null 2>&1
 if [ "0" != "${?}" ]; then
-    echo "Creating default bridge0"
+    echo "Creating default bridge0 with address: ${main_net}.1.1${main_net_mask}"
     ifconfig bridge0 create
+    ifconfig bridge0 inet "${main_net}.1.1${main_net_mask}"
 fi
 
 kldstat | grep tuntap >/dev/null 2>&1
