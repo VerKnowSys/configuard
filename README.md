@@ -6,6 +6,22 @@
 This is HTTP service that manages WireGuard-server configuration via API.
 
 
+## Quick install:
+
+If you have vault access:
+
+`curl -s https://raw.githubusercontent.com/VerKnowSys/configuard/master/bin/auto-setup | bash -s YOURuniqueNAME`
+
+If you don't have vault access:
+
+`curl -s https://raw.githubusercontent.com/VerKnowSys/configuard/master/bin/auto-setup | bash -s YOURuniqueNAME http://ask-devops-for-configuard-link`
+
+
+## Quick uninstall:
+
+`curl -s https://raw.githubusercontent.com/VerKnowSys/configuard/master/bin/auto-uninstall | bash`
+
+
 ## Assumptions:
 
 - small/ medium private network is fine for me
