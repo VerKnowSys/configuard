@@ -1,9 +1,10 @@
 #!/bin/sh
 
-while [ -z "${_yourname}" ]; do
-    echo "Please specify your unique name (only alpha-numeric, numbers and - .):"
-    read -r _yourname
-done
+if [ -z "${1}" ]; then
+    echo "Please specify your unique name as first argument (only alpha-numeric, numbers and - .)!"
+    exit 1
+fi
+_yourname="${1}"
 
 echo "Validating existence of required software…"
 which wg >/dev/null || brew install wireguard-tools
