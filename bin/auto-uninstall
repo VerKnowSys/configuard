@@ -1,0 +1,13 @@
+#!/bin/sh
+
+echo "Uninstalling (you may be prompted for local user password)…"
+sudo launchctl unload -w "/Library/LaunchAgents/com.centra.dns-auto-set.plist"
+launchctl unload -w "${HOME}/Library/LaunchAgents/com.wireguard.plist"
+
+rm -f /usr/local/etc/wireguard/wg0.conf
+sudo rm -vf "/usr/local/bin/dns-auto-conf" "/Library/LaunchAgents/com.centra.dns-auto-set.plist"
+
+echo "Setting default DNS…"
+for _network in $(networksetup -listallnetworkservices | grep -E "Wi-Fi|Ethernet"); do
+    networksetup -setdnsservers "${_network}" "1.1.1.1"
+done
