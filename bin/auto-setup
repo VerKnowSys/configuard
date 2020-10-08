@@ -10,22 +10,23 @@ _configuard_link="${2}"
 echo "Validating existence of required software…"
 which wg >/dev/null || brew install wireguard-tools
 
-_ip="$(pass ops/wireguard/ip)"
-_port="$(pass ops/wireguard/port)"
-_uuid="$(pass ops/wireguard/uuid)"
-if [ -z "${_ip}" ] \
-|| [ -z "${_port}" ] \
-|| [ -z "${_uuid}" ]; then
-    echo "No wireguard values available from pass vault!"
-    echo "If you wish to continue, please ask your DevOps about direct link to Configuard"
-    exit 2
-else
-    _configuard_link="http://${_ip}:${_port}/${_uuid}/wireguard/workstation"
-fi
-
 if [ -z "${_configuard_link}" ]; then
-    echo "Couldn't determine configuard link. Setup aborted!"
-    exit 3
+    _ip="$(pass ops/wireguard/ip)"
+    _port="$(pass ops/wireguard/port)"
+    _uuid="$(pass ops/wireguard/uuid)"
+    if [ -z "${_ip}" ] \
+    || [ -z "${_port}" ] \
+    || [ -z "${_uuid}" ]; then
+        echo "No wireguard values available from pass vault!"
+        echo "If you wish to continue, please ask your DevOps about direct link to Configuard"
+    else
+        _configuard_link="http://${_ip}:${_port}/${_uuid}/wireguard/workstation"
+    fi
+
+    if [ -z "${_configuard_link}" ]; then
+        echo "Couldn't determine configuard link. Setup aborted!"
+        exit 3
+    fi
 fi
 
 echo "Proceeding with installation (you may be promped for your local user password)…"
