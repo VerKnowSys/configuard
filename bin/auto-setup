@@ -1,7 +1,9 @@
 #!/bin/sh
 
-echo "Please specify your unique name (only alpha-numeric, numbers and - .):"
-read -r _yourname
+while [ -z "${_yourname}" ]; do
+    echo "Please specify your unique name (only alpha-numeric, numbers and - .):"
+    read -r _yourname
+done
 
 echo "Validating existence of required software…"
 which wg >/dev/null || brew install wireguard-tools
@@ -26,7 +28,7 @@ if [ -z "${_configuard_link}" ]; then
     exit 1
 fi
 
-echo "Proceeding with installation (you may be promped for your user password)…"
+echo "Proceeding with installation (you may be promped for your local user password)…"
 curl -s -XPOST "${_configuard_link}/${_yourname}" > /usr/local/etc/wireguard/wg0.conf
 curl -s "https://raw.githubusercontent.com/centrahq/dns-auto-set/master/bin/setup-dns-auto-set" | bash
 git clone "https://github.com/verknowsys/configuard" /tmp/configuard
