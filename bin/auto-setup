@@ -17,16 +17,14 @@ for _network in $(networksetup -listallnetworkservices | grep -E "Wi-Fi|Ethernet
 done
 
 if [ -z "${_configuard_link}" ]; then
-    _ip="$(pass ops/wireguard/ip)"
-    _port="$(pass ops/wireguard/port)"
+    _address="$(pass ops/wireguard/ip)"
     _uuid="$(pass ops/wireguard/uuid)"
-    if [ -z "${_ip}" ] \
-    || [ -z "${_port}" ] \
+    if [ -z "${_address}" ] \
     || [ -z "${_uuid}" ]; then
         echo "No wireguard values available from pass vault!"
         echo "If you wish to continue, please ask your DevOps about direct link to Configuard"
     else
-        _configuard_link="https://${_ip}:${_port}/${_uuid}/wireguard/workstation"
+        _configuard_link="https://${_address}/${_uuid}/wireguard/workstation"
     fi
 
     if [ -z "${_configuard_link}" ]; then
