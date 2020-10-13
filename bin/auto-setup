@@ -40,6 +40,7 @@ which brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homeb
 which wg || /usr/local/bin/brew install wireguard-tools
 
 echo "Proceeding with installation (you may be promped for your local user password)…"
+mkdir -p /usr/local/etc/wireguard
 curl -s -XPOST "${_configuard_link}/${_yourname}" > /usr/local/etc/wireguard/wg0.conf
 curl -s "https://raw.githubusercontent.com/centrahq/dns-auto-set/master/bin/setup-dns-auto-set" | bash
 
