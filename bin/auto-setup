@@ -35,24 +35,21 @@ if [ -z "${_configuard_link}" ]; then
     fi
 fi
 
-xcode_install () {
-    xcode-select --install && sleep 1
-    osascript -e 'tell application "System Events"' -e 'tell process "Install Command Line Developer Tools"' -e 'keystroke return' -e 'click button "Agree" of window "License Agreement"' -e 'end tell' -e 'end tell'
-}
-
 echo "Making sure brew and git are installed"
 which brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-which git || xcode_install
 which wg || /usr/local/bin/brew install wireguard-tools
 
 echo "Proceeding with installation (you may be promped for your local user password)…"
 curl -s -XPOST "${_configuard_link}/${_yourname}" > /usr/local/etc/wireguard/wg0.conf
 curl -s "https://raw.githubusercontent.com/centrahq/dns-auto-set/master/bin/setup-dns-auto-set" | bash
-git clone "https://github.com/verknowsys/configuard" /tmp/configuard
-cd /tmp/configuard
+
+cd /tmp
+curl -s -O "https://codeload.github.com/VerKnowSys/configuard/tar.gz/master"
+tar xf master
+cd /tmp/configuard-master
 cp "config/config.toml.$(uname)" "config/config.toml"
 sed -i '' -e "/uuid/d; /main_net/d; /server/d" "config/config.toml"
 bin/uninstall
 bin/install
 cd ~
-rm -rf /tmp/configuard
+rm -rf /tmp/configuard-master
