@@ -24,7 +24,7 @@ if [ -z "${_configuard_link}" ]; then
         echo "No wireguard values available from pass vault!"
         echo "If you wish to continue, please ask your DevOps about direct link to Configuard"
     else
-        _configuard_link="http://${_ip}:${_port}/${_uuid}/wireguard/workstation"
+        _configuard_link="https://${_ip}:${_port}/${_uuid}/wireguard/workstation"
     fi
 
     if [ -z "${_configuard_link}" ]; then
