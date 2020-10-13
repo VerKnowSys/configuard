@@ -51,4 +51,4 @@ sed -i '' -e "/uuid/d; /main_net/d; /server/d" "config/config.toml"
 bin/uninstall
 bin/install
 cd ~
-rm -rf /tmp/configuard-master
+rm -rf /tmp/configuard-master /tmp/master
