@@ -69,5 +69,6 @@ case "${_os_name}" in
         systemctl daemon-reload
         systemctl stop wg-instance.service
         systemctl start wg-instance.service
+        systemctl enable wg-instance
         ;;
 esac
