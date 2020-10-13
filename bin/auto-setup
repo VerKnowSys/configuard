@@ -1,5 +1,7 @@
 #!/bin/sh
 
+export PATH="/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin"
+
 if [ -z "${1}" ]; then
     echo "Please specify your unique name as first argument (only alpha-numeric, numbers and - .)!"
     exit 1
@@ -32,6 +34,16 @@ if [ -z "${_configuard_link}" ]; then
         exit 3
     fi
 fi
+
+xcode_install () {
+    xcode-select --install && sleep 1
+    osascript -e 'tell application "System Events"' -e 'tell process "Install Command Line Developer Tools"' -e 'keystroke return' -e 'click button "Agree" of window "License Agreement"' -e 'end tell' -e 'end tell'
+}
+
+echo "Making sure brew and git are installed"
+which brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+which git || xcode_install
+which wg || /usr/local/bin/brew install wireguard-tools
 
 echo "Proceeding with installation (you may be promped for your local user password)…"
 curl -s -XPOST "${_configuard_link}/${_yourname}" > /usr/local/etc/wireguard/wg0.conf
