@@ -17,7 +17,7 @@ for _network in $(networksetup -listallnetworkservices | grep -E "Wi-Fi|Ethernet
 done
 
 if [ -z "${_configuard_link}" ]; then
-    _address="$(pass ops/wireguard/ip)"
+    _address="$(pass ops/wireguard/address)"
     _uuid="$(pass ops/wireguard/uuid)"
     if [ -z "${_address}" ] \
     || [ -z "${_uuid}" ]; then
