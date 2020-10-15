@@ -19,7 +19,7 @@ while true; do
         restart_tunnel
     fi
 
-    ping -c1 "${_wg_router_ip}" >/dev/null 2>&1
+    ping -c1 "${main_net}.1.1" >/dev/null 2>&1
     if [ "0" != "${?}" ]; then
         restart_tunnel
     fi
