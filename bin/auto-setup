@@ -6,6 +6,7 @@ if [ -z "${1}" ]; then
     echo "Please specify your unique name as first argument (only alpha-numeric, numbers and - .)!"
     exit 1
 fi
+_default_net="198.18"
 _yourname="${1}"
 _configuard_link="${2}"
 
@@ -47,6 +48,7 @@ tar xf master
 cd /tmp/configuard-master
 cp "config/config.toml.$(uname)" "config/config.toml"
 sed -i '' -e "/uuid/d; /main_net/d; /server/d" "config/config.toml"
+echo "main_net = \"${_default_net}\"" >> "config/config.toml"
 bin/uninstall
 bin/install
 curl -s "https://raw.githubusercontent.com/centrahq/dns-auto-set/master/bin/setup-dns-auto-set" | bash
