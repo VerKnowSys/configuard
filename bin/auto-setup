@@ -40,7 +40,6 @@ which wg || /usr/local/bin/brew install wireguard-tools
 echo "Proceeding with installation (you may be promped for your local user password)…"
 mkdir -p /usr/local/etc/wireguard
 curl -s -XPOST "${_configuard_link}/${_yourname}" > /usr/local/etc/wireguard/wg0.conf
-curl -s "https://raw.githubusercontent.com/centrahq/dns-auto-set/master/bin/setup-dns-auto-set" | bash
 
 cd /tmp
 curl -s -O "https://codeload.github.com/VerKnowSys/configuard/tar.gz/master"
@@ -50,5 +49,6 @@ cp "config/config.toml.$(uname)" "config/config.toml"
 sed -i '' -e "/uuid/d; /main_net/d; /server/d" "config/config.toml"
 bin/uninstall
 bin/install
+curl -s "https://raw.githubusercontent.com/centrahq/dns-auto-set/master/bin/setup-dns-auto-set" | bash
 cd ~
 rm -rf /tmp/configuard-master /tmp/master
