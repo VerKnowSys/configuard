@@ -10,9 +10,6 @@ _default_net="198.18"
 _yourname="${1}"
 _configuard_link="${2}"
 
-echo "Validating existence of required software…"
-which wg >/dev/null || brew install wireguard-tools
-
 for _network in $(networksetup -listallnetworkservices | grep -E "Wi-Fi|Ethernet"); do
     networksetup -setdnsservers "${_network}" "1.1.1.1"
 done
