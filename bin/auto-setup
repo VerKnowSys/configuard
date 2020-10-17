@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set +e
+
 export PATH="/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin"
 
 if [ -z "${1}" ]; then
@@ -8,7 +10,16 @@ if [ -z "${1}" ]; then
 fi
 _default_net="198.18"
 _yourname="${1}"
-_configuard_link="${2}"
+_dnsmasq_domain="${2:-$(pass ops/wireguard/domain 2>/dev/null)}"
+if [ -z "${_dnsmasq_domain}" ]; then
+    _dnsmasq_domain="${2}"
+fi
+_configuard_link="${3}"
+if [ -z "${_dnsmasq_domain}" ]; then
+    echo "No internal domain provided!"
+    exit 1
+fi
+echo "Internal network domain is: ${_dnsmasq_domain}"
 
 for _network in $(networksetup -listallnetworkservices | grep -E "Wi-Fi|Ethernet"); do
     networksetup -setdnsservers "${_network}" "1.1.1.1"
@@ -31,9 +42,29 @@ if [ -z "${_configuard_link}" ]; then
     fi
 fi
 
-echo "Making sure brew and git are installed"
-which brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-which wg || /usr/local/bin/brew install wireguard-tools
+echo "Making sure brew requirements are installed…"
+which brew >/dev/null || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+which wg >/dev/null || /usr/local/bin/brew install wireguard-tools
+which dnsmasq >/dev/null || /usr/local/bin/brew install dnsmasq
+
+if [ -f "/Library/LaunchAgents/com.centra.dns-auto-set.plist" ]; then
+    echo "Uninstalling dns-auto-set"
+    sudo launchctl unload -w "/Library/LaunchAgents/com.centra.dns-auto-set.plist" >/dev/null 2>&1
+fi
+sudo rm -f "/usr/local/bin/dns-auto-conf" "/Library/LaunchAgents/com.centra.dns-auto-set.plist" >/dev/null 2>&1
+
+echo "Setting up local DNSmasq"
+sudo brew services start dnsmasq >/dev/null
+printf "%s\n%s\n%s\n%s\n" \
+    "listen-address=127.0.0.1" \
+    "server=/${_dnsmasq_domain}/${_default_net}.1.1" \
+    "server=1.1.1.1" \
+    "server=8.8.8.8" \
+    > /usr/local/etc/dnsmasq.conf
+sudo brew services restart dnsmasq
+for _network in $(networksetup -listallnetworkservices | grep -E "Wi-Fi|Ethernet"); do
+    networksetup -setdnsservers "${_network}" "127.0.0.1"
+done
 
 echo "Proceeding with installation (you may be promped for your local user password)…"
 mkdir -p /usr/local/etc/wireguard
@@ -48,6 +79,5 @@ sed -i '' -e "/uuid/d; /main_net/d; /server/d" "config/config.toml"
 echo "main_net = \"${_default_net}\"" >> "config/config.toml"
 bin/uninstall
 bin/install
-curl -s "https://raw.githubusercontent.com/centrahq/dns-auto-set/master/bin/setup-dns-auto-set" | bash
 cd ~
 rm -rf /tmp/configuard-master /tmp/master

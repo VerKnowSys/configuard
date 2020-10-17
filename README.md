@@ -6,20 +6,32 @@
 This is HTTP service that manages WireGuard-server configuration via API.
 
 
+## Pass vault values
+
+- `ops/wireguard/uuid` - Unique UUID for Configuard.
+
+- `ops/wireguard/address` - Configuard listen address.
+
+- `ops/wireguard/port` - Configuard listen port.
+
+- `ops/wireguard/domain` - Internal network domain (for dnsmasq).
+
+
 ## Quick install:
 
-If you have vault access:
+If you have Pass vault access:
 
 `curl -s https://raw.githubusercontent.com/VerKnowSys/configuard/master/bin/auto-setup | bash -s YOURuniqueNAME`
 
-If you don't have vault access:
+If you don't have Pass vault:
 
-`curl -s https://raw.githubusercontent.com/VerKnowSys/configuard/master/bin/auto-setup | bash -s YOURuniqueNAME http://ask-devops-for-configuard-link`
+`curl -s https://raw.githubusercontent.com/VerKnowSys/configuard/master/bin/auto-setup | bash -s YOURuniqueNAME your.internal.domain http://ask-devops-for-configuard-link`
 
 
 ## Quick uninstall:
 
 `curl -s https://raw.githubusercontent.com/VerKnowSys/configuard/master/bin/auto-uninstall | bash`
+
 
 
 ## Assumptions:
