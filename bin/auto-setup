@@ -18,6 +18,12 @@ fi
 _configuard_link="${3}"
 echo "Internal network domain is: ${_dnsmasq_domain}"
 
+if [ -f "/Library/LaunchAgents/com.centra.dns-auto-set.plist" ]; then
+    echo "Uninstalling dns-auto-set"
+    sudo launchctl unload -w "/Library/LaunchAgents/com.centra.dns-auto-set.plist" >/dev/null 2>&1
+fi
+sudo rm -f "/usr/local/bin/dns-auto-conf" "/Library/LaunchAgents/com.centra.dns-auto-set.plist" >/dev/null 2>&1
+
 for _network in $(networksetup -listallnetworkservices | grep -E "Wi-Fi|Ethernet"); do
     networksetup -setdnsservers "${_network}" "1.1.1.1"
 done
@@ -43,12 +49,6 @@ echo "Making sure brew requirements are installed…"
 which brew >/dev/null || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 which wg >/dev/null || /usr/local/bin/brew install wireguard-tools
 which dnsmasq >/dev/null || /usr/local/bin/brew install dnsmasq
-
-if [ -f "/Library/LaunchAgents/com.centra.dns-auto-set.plist" ]; then
-    echo "Uninstalling dns-auto-set"
-    sudo launchctl unload -w "/Library/LaunchAgents/com.centra.dns-auto-set.plist" >/dev/null 2>&1
-fi
-sudo rm -f "/usr/local/bin/dns-auto-conf" "/Library/LaunchAgents/com.centra.dns-auto-set.plist" >/dev/null 2>&1
 
 echo "Setting up local DNSmasq"
 sudo brew services start dnsmasq >/dev/null
