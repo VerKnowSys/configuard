@@ -16,10 +16,6 @@ if [ -z "${_dnsmasq_domain}" ]; then
     exit 1
 fi
 _configuard_link="${3}"
-if [ -z "${_dnsmasq_domain}" ]; then
-    echo "No internal domain provided!"
-    exit 1
-fi
 echo "Internal network domain is: ${_dnsmasq_domain}"
 
 for _network in $(networksetup -listallnetworkservices | grep -E "Wi-Fi|Ethernet"); do
