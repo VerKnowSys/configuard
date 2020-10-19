@@ -12,7 +12,8 @@ _default_net="198.18"
 _yourname="${1}"
 _dnsmasq_domain="${2:-$(pass ops/wireguard/domain 2>/dev/null)}"
 if [ -z "${_dnsmasq_domain}" ]; then
-    _dnsmasq_domain="${2}"
+    echo "No internal domain provided or available through vault."
+    exit 1
 fi
 _configuard_link="${3}"
 if [ -z "${_dnsmasq_domain}" ]; then
