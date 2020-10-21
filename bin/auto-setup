@@ -45,6 +45,9 @@ if [ -z "${_configuard_link}" ]; then
     fi
 fi
 
+echo "Making sure /usr/local is owned by local user…"
+sudo chown -R ${USER} /usr/local >/dev/null 2>&1
+
 echo "Making sure brew requirements are installed…"
 which brew >/dev/null || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 which wg >/dev/null || /usr/local/bin/brew install wireguard-tools
