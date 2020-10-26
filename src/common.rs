@@ -1,10 +1,9 @@
 use crate::{
     config::config,
-    templates::BridgeRouterAliasTemplate,
     templates::{
-        RouteAddTemplate, RouteDelTemplate, WireguardServerConfigurationEntryTemplate,
-        WireguardServerConfigurationTemplate, WireguardSyncConfigTemplate,
-        WireguardWorkstationTemplate,
+        BridgeRouterAliasTemplate, RouteAddTemplate, RouteDelTemplate,
+        WireguardServerConfigurationEntryTemplate, WireguardServerConfigurationTemplate,
+        WireguardSyncConfigTemplate, WireguardWorkstationTemplate,
     },
     utils::{both_elements, first_of_pair, run},
     ENTRIES_DIR, SERVER_PRIVATE_KEY, SERVER_PUBLIC_KEY,

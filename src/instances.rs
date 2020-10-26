@@ -1,13 +1,10 @@
 use crate::{
-    common::render_server_config_head,
     common::{
         commit_wireguard_configuration, generate_wireguard_keys, new_decoy,
-        read_all_used_ipv4, read_server_key, render_all_entries,
+        read_all_used_ipv4, read_server_key, render_all_entries, render_server_config_head,
     },
     config::*,
     templates::WireguardInstanceTemplate,
-};
-use crate::{
     utils::{find_last_ipv4, first_of_pair, next_instance_ipv4, write_atomic},
     ENTRIES_DIR, FILE_NAME_REGEX, INSTANCES_DIR, SERVER_PUBLIC_KEY,
 };
