@@ -1,6 +1,4 @@
-use crate::utils::find_last_ipv4;
-use crate::utils::next_instance_ipv4;
-use crate::utils::next_workstation_ipv4;
+use crate::utils::{find_last_ipv4, next_instance_ipv4, next_workstation_ipv4};
 
 
 #[test]

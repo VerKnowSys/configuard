@@ -1,20 +1,16 @@
-use crate::common::commit_wireguard_configuration;
-use crate::common::generate_wireguard_keys;
-use crate::common::new_decoy;
-use crate::common::read_all_used_ipv4;
-use crate::common::read_server_key;
-use crate::common::render_all_entries;
-use crate::common::render_server_config_head;
-use crate::config::*;
-use crate::templates::WireguardInstanceTemplate;
-use crate::utils::find_last_ipv4;
-use crate::utils::first_of_pair;
-use crate::utils::next_instance_ipv4;
-use crate::utils::write_atomic;
-use crate::ENTRIES_DIR;
-use crate::FILE_NAME_REGEX;
-use crate::INSTANCES_DIR;
-use crate::SERVER_PUBLIC_KEY;
+use crate::{
+    common::render_server_config_head,
+    common::{
+        commit_wireguard_configuration, generate_wireguard_keys, new_decoy,
+        read_all_used_ipv4, read_server_key, render_all_entries,
+    },
+    config::*,
+    templates::WireguardInstanceTemplate,
+};
+use crate::{
+    utils::{find_last_ipv4, first_of_pair, next_instance_ipv4, write_atomic},
+    ENTRIES_DIR, FILE_NAME_REGEX, INSTANCES_DIR, SERVER_PUBLIC_KEY,
+};
 use askama::Template;
 use lockfile::Lockfile;
 use std::{fs::read_to_string, path::Path};

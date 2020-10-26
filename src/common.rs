@@ -1,21 +1,17 @@
-use crate::config::config;
-use crate::templates::BridgeRouterAliasTemplate;
-use crate::templates::RouteAddTemplate;
-use crate::templates::RouteDelTemplate;
-use crate::templates::WireguardServerConfigurationEntryTemplate;
-use crate::templates::WireguardServerConfigurationTemplate;
-use crate::templates::WireguardSyncConfigTemplate;
-use crate::templates::WireguardWorkstationTemplate;
-use crate::utils::both_elements;
-use crate::utils::first_of_pair;
-use crate::utils::run;
-use crate::ENTRIES_DIR;
-use crate::SERVER_PRIVATE_KEY;
-use crate::SERVER_PUBLIC_KEY;
+use crate::{
+    config::config,
+    templates::BridgeRouterAliasTemplate,
+    templates::{
+        RouteAddTemplate, RouteDelTemplate, WireguardServerConfigurationEntryTemplate,
+        WireguardServerConfigurationTemplate, WireguardSyncConfigTemplate,
+        WireguardWorkstationTemplate,
+    },
+    utils::{both_elements, first_of_pair, run},
+    ENTRIES_DIR, SERVER_PRIVATE_KEY, SERVER_PUBLIC_KEY,
+};
 use askama::Template;
 use rand_core::OsRng;
-use std::ffi::OsStr;
-use std::fs::read_to_string;
+use std::{ffi::OsStr, fs::read_to_string};
 use walkdir::{DirEntry, WalkDir};
 use x25519_dalek::{PublicKey, StaticSecret};
 

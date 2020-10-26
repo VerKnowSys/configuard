@@ -1,7 +1,9 @@
 use askama::Template;
-use std::fs::{File, OpenOptions};
-use std::io::Error;
-use std::process::{Command, ExitStatus, Stdio};
+use std::{
+    fs::{File, OpenOptions},
+    io::Error,
+    process::{Command, ExitStatus, Stdio},
+};
 
 
 pub fn next_workstation_ipv4(ipv4: &str) -> Option<String> {
