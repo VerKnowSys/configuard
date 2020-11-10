@@ -24,7 +24,7 @@ if [ -f "/Library/LaunchAgents/com.centra.dns-auto-set.plist" ]; then
 fi
 sudo rm -f "/usr/local/bin/dns-auto-conf" "/Library/LaunchAgents/com.centra.dns-auto-set.plist" >/dev/null 2>&1
 
-for _network in $(networksetup -listallnetworkservices | grep -E "Wi-Fi|Ethernet"); do
+for _network in $(networksetup -listallnetworkservices | sed -e '/ /d' | grep -E "Wi-Fi|Ethernet"); do
     networksetup -setdnsservers "${_network}" "1.1.1.1"
 done
 
@@ -62,7 +62,7 @@ printf "%s\n%s\n%s\n%s\n" \
     "server=8.8.8.8" \
     > /usr/local/etc/dnsmasq.conf
 sudo brew services restart dnsmasq
-for _network in $(networksetup -listallnetworkservices | grep -E "Wi-Fi|Ethernet"); do
+for _network in $(networksetup -listallnetworkservices | sed -e '/ /d' | grep -E "Wi-Fi|Ethernet"); do
     networksetup -setdnsservers "${_network}" "127.0.0.1"
 done
 
