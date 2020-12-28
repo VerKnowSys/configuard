@@ -68,8 +68,10 @@ done
 
 echo "Proceeding with installation (you may be promped for your local user password)…"
 mkdir -p /usr/local/etc/wireguard
-curl -s -XPOST "${_configuard_link}/${_yourname}" > /usr/local/etc/wireguard/wg0.conf
+curl -XPOST "${_configuard_link}/${_yourname}" > /tmp/configuard-wg0.conf
+mv -v /tmp/configuard-wg0.conf /usr/local/etc/wireguard/wg0.conf
 
+echo "Installing Configuard"
 cd /tmp
 curl -s -O "https://codeload.github.com/VerKnowSys/configuard/tar.gz/master"
 tar xf master
