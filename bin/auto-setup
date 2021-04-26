@@ -73,6 +73,7 @@ mv -v /tmp/configuard-wg0.conf /usr/local/etc/wireguard/wg0.conf
 
 echo "Installing Configuard"
 cd /tmp
+rm -f master
 curl -s -O "https://codeload.github.com/VerKnowSys/configuard/tar.gz/master"
 tar xf master
 cd /tmp/configuard-master
