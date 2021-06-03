@@ -2,7 +2,6 @@
 #![deny(
         // missing_docs,
         unstable_features,
-        unsafe_code,
         missing_debug_implementations,
         // missing_copy_implementations,
         trivial_casts,

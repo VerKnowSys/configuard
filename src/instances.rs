@@ -29,7 +29,7 @@ pub fn new(name: String) -> String {
                 Path::new(&format!("{}{}{}", ENTRIES_DIR, INSTANCES_DIR, name)).to_owned();
             let user_ipv4 = if existing_entry.exists() {
                 let line = read_to_string(existing_entry).unwrap_or_default();
-                first_of_pair(&line).unwrap_or_default()
+                first_of_pair(line).unwrap_or_default()
             } else {
                 let all_used_ipv4s = read_all_used_ipv4(INSTANCES_DIR);
                 let last_ipv4 = match find_last_ipv4(all_used_ipv4s) {

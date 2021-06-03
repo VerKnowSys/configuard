@@ -65,10 +65,7 @@ pub fn find_last_ipv4(list: Vec<String>) -> Option<String> {
             first.octets().partial_cmp(&second.octets()).unwrap()
         });
 
-        match out.last() {
-            Some(last) => Some(last.to_string()),
-            None => None,
-        }
+        out.last().map(|last| last.to_string())
     }
 }
 
@@ -127,17 +124,15 @@ pub fn write_atomic(file_path: &str, contents: &str) {
 }
 
 
-pub fn first_of_pair(line: &str) -> Option<String> {
+pub fn first_of_pair(line: String) -> Option<String> {
     let vector = line.split(',').collect::<Vec<_>>();
-    if let Some(first_element) = vector.first() {
-        Some(first_element.replace('\n', ""))
-    } else {
-        None
-    }
+    vector
+        .first()
+        .map(|first_element| first_element.replace('\n', ""))
 }
 
 
-pub fn both_elements(line: &str) -> Option<(String, String)> {
+pub fn both_elements(line: String) -> Option<(String, String)> {
     let vector = line.split(',').collect::<Vec<_>>();
     if let (Some(ip), Some(pubkey)) = (vector.first(), vector.last()) {
         Some((ip.to_string(), pubkey.to_string()))

@@ -71,7 +71,7 @@ pub fn render_all_entries() -> String {
     let all_entries_ipv4s_and_pubkeys = all_entries
         .iter()
         .filter_map(|file| read_to_string(file.path()).ok())
-        .filter_map(|line| both_elements(&line))
+        .filter_map(both_elements)
         .collect::<Vec<_>>();
 
     all_entries
@@ -90,7 +90,7 @@ pub fn render_all_entries() -> String {
                 .unwrap_or_default()
             )
         })
-        .collect::<String>()
+        .collect()
 }
 
 
@@ -129,7 +129,7 @@ pub fn read_all_used_ipv4(from_subdir: &str) -> Vec<String> {
         .filter_map(|v| v.ok())
         .filter(is_not_hidden_file)
         .filter_map(|file| read_to_string(file.path()).ok())
-        .filter_map(|line| first_of_pair(&line))
+        .filter_map(first_of_pair)
         .collect()
 }
 
