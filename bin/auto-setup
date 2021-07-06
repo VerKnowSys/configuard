@@ -2,6 +2,7 @@
 
 set +e
 
+mkdir -p "${HOME}/Library/LaunchAgents"
 export PATH="/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin"
 
 if [ -z "${1}" ]; then
