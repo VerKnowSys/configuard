@@ -22,7 +22,7 @@ use crate::{
     config::{config, validate_config},
 };
 use regex::Regex;
-use rocket::{ignite, request::Request, Rocket};
+use rocket::request::Request;
 
 mod common;
 mod config;
@@ -60,13 +60,12 @@ fn not_found(_req: &Request) -> String {
 }
 
 
-#[launch]
-fn start() -> Rocket {
-    // TODO: add validation if os is local vs server
-    // TODO: add validation if user is root
-    // #[cfg(os_target = "freebsd")]
+#[rocket::main]
+async fn main() -> Result<(), rocket::Error> {
     validate_config(&config());
-    ignite()
+    rocket::build()
+        // .mount("/", routes![inventory, host, host_delete, ssh])
+        // .register("/", catchers![default_catcher])
         .mount(
             &format!("/{}/wireguard/instance/", config().uuid),
             routes![instances::new],
@@ -75,5 +74,25 @@ fn start() -> Rocket {
             &format!("/{}/wireguard/workstation/", config().uuid),
             routes![workstations::new],
         )
-        .register(catchers![internal_error, not_found])
+        .register("/", catchers![internal_error, not_found])
+        .launch()
+        .await
 }
+
+
+// fn start() -> Rocket {
+//     // TODO: add validation if os is local vs server
+//     // TODO: add validation if user is root
+//     // #[cfg(os_target = "freebsd")]
+//     validate_config(&config());
+//     ignite()
+//         .mount(
+//             &format!("/{}/wireguard/instance/", config().uuid),
+//             routes![instances::new],
+//         )
+//         .mount(
+//             &format!("/{}/wireguard/workstation/", config().uuid),
+//             routes![workstations::new],
+//         )
+//         .register(catchers![internal_error, not_found])
+// }

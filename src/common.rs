@@ -41,7 +41,7 @@ pub fn commit_wireguard_configuration(user_ipv4: &str) {
     run(
         "/dev/stderr",
         RouteDelTemplate {
-            ipv4_address: &user_ipv4,
+            ipv4_address: user_ipv4,
         },
     )
     .ok();
@@ -49,7 +49,7 @@ pub fn commit_wireguard_configuration(user_ipv4: &str) {
     run(
         "/dev/stderr",
         RouteAddTemplate {
-            ipv4_address: &user_ipv4,
+            ipv4_address: user_ipv4,
         },
     )
     .ok();
@@ -83,7 +83,7 @@ pub fn render_all_entries() -> String {
                 "{}\n\n",
                 (WireguardServerConfigurationEntryTemplate {
                     user_name: &file_name_to_string(config_name.file_name()),
-                    user_ips: &ip,
+                    user_ips: ip,
                     user_public_key: pubkey,
                 })
                 .render()
