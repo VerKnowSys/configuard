@@ -32,6 +32,7 @@ case "${_os_name}" in
         install -m 600 -v "config/config.toml" "${_prefix}/etc/wg-config.toml"
         sed -i '' -e 's|config/config.toml|${_prefix}/etc/wg-config.toml|' "${_prefix}/etc/wg-common"
 
+        sed -i '' -e "s|PREFIX|${_prefix}|g;" "launchd/com.wireguard.plist"
         install -m 600 -v "launchd/com.wireguard.plist" "${HOME}/Library/LaunchAgents/com.wireguard.plist"
         launchctl unload -w "${HOME}/Library/LaunchAgents/com.wireguard.plist" 2>/dev/null
         sleep 2
