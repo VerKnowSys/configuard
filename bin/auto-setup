@@ -14,7 +14,7 @@ case "${_arch}" in
 esac
 
 mkdir -p "${HOME}/Library/LaunchAgents"
-export PATH="/bin:/usr/bin:/sbin:/usr/sbin:${_prefix}/bin"
+export PATH="${_prefix}/bin:/bin:/usr/bin:/sbin:/usr/sbin"
 
 if [ -z "${1}" ]; then
     echo "Please specify your unique name as first argument (only alpha-numeric, numbers and - .)!"
