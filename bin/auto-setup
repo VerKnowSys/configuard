@@ -2,8 +2,19 @@
 
 set +e
 
+_arch="$(uname -m)"
+case "${_arch}" in
+    arm64)
+        _prefix="/opt/homebrew"
+        ;;
+
+    x86_64)
+        _prefix="/usr/local"
+        ;;
+esac
+
 mkdir -p "${HOME}/Library/LaunchAgents"
-export PATH="/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin"
+export PATH="/bin:/usr/bin:/sbin:/usr/sbin:${_prefix}/bin"
 
 if [ -z "${1}" ]; then
     echo "Please specify your unique name as first argument (only alpha-numeric, numbers and - .)!"
@@ -11,7 +22,15 @@ if [ -z "${1}" ]; then
 fi
 _default_net="198.18"
 _yourname="${1}"
-_dnsmasq_domain="${2:-$(pass ops/wireguard/domain 2>/dev/null)}"
+_domain="$(pass ops/wireguard/domain 2>/dev/null)"
+
+echo "PATH: ${PATH}"
+echo "PREFIX: ${_prefix}"
+echo "ARCH: ${_arch}"
+echo "USER: ${_yourname}"
+echo "DOMAIN: ${_domain}"
+
+_dnsmasq_domain="${2:-${_domain}}"
 if [ -z "${_dnsmasq_domain}" ]; then
     echo "No internal domain provided or available through vault."
     exit 1
@@ -23,7 +42,7 @@ if [ -f "/Library/LaunchAgents/com.centra.dns-auto-set.plist" ]; then
     echo "Uninstalling dns-auto-set"
     sudo launchctl unload -w "/Library/LaunchAgents/com.centra.dns-auto-set.plist" >/dev/null 2>&1
 fi
-sudo rm -f "/usr/local/bin/dns-auto-conf" "/Library/LaunchAgents/com.centra.dns-auto-set.plist" >/dev/null 2>&1
+sudo rm -f "${_prefix}/bin/dns-auto-conf" "/Library/LaunchAgents/com.centra.dns-auto-set.plist" >/dev/null 2>&1
 
 for _network in $(networksetup -listallnetworkservices | sed -e '/ /d' | grep -E "Wi-Fi|Ethernet"); do
     networksetup -setdnsservers "${_network}" "1.1.1.1"
@@ -46,13 +65,13 @@ if [ -z "${_configuard_link}" ]; then
     fi
 fi
 
-echo "Making sure /usr/local is owned by local user…"
-sudo chown -R ${USER} /usr/local >/dev/null 2>&1
+echo "Making sure ${_prefix} is owned by local user…"
+sudo chown -R ${USER} ${_prefix} >/dev/null 2>&1
 
 echo "Making sure brew requirements are installed…"
 which brew >/dev/null || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-which wg >/dev/null || /usr/local/bin/brew install wireguard-tools
-which dnsmasq >/dev/null || /usr/local/bin/brew install dnsmasq
+which wg >/dev/null || ${_prefix}/bin/brew install wireguard-tools
+which dnsmasq >/dev/null || ${_prefix}/bin/brew install dnsmasq
 
 echo "Setting up local DNSmasq"
 sudo brew services start dnsmasq >/dev/null
@@ -61,16 +80,16 @@ printf "%s\n%s\n%s\n%s\n" \
     "server=/${_dnsmasq_domain}/${_default_net}.1.1" \
     "server=1.1.1.1" \
     "server=8.8.8.8" \
-    > /usr/local/etc/dnsmasq.conf
+    > ${_prefix}/etc/dnsmasq.conf
 sudo brew services restart dnsmasq
 for _network in $(networksetup -listallnetworkservices | sed -e '/ /d' | grep -E "Wi-Fi|Ethernet"); do
     networksetup -setdnsservers "${_network}" "127.0.0.1"
 done
 
 echo "Proceeding with installation (you may be promped for your local user password)…"
-mkdir -p /usr/local/etc/wireguard
+mkdir -p ${_prefix}/etc/wireguard
 curl -XPOST "${_configuard_link}/${_yourname}" > /tmp/configuard-wg0.conf
-mv -v /tmp/configuard-wg0.conf /usr/local/etc/wireguard/wg0.conf
+mv -v /tmp/configuard-wg0.conf ${_prefix}/etc/wireguard/wg0.conf
 
 echo "Installing Configuard"
 cd /tmp

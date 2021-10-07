@@ -1,9 +1,20 @@
 #!/bin/sh
 
+case "$(uname -m)" in
+    arm64)
+        _prefix="/opt/homebrew"
+        ;;
+
+    x86_64)
+        _prefix="/usr/local"
+        ;;
+esac
+
+
 echo "Uninstalling (you may be prompted for local user password)…"
 launchctl unload -w "${HOME}/Library/LaunchAgents/com.wireguard.plist"
 
-rm -f /usr/local/etc/wireguard/wg0.conf
+rm -f "${_prefix}/etc/wireguard/wg0.conf"
 
 echo "Setting default DNS…"
 for _network in $(networksetup -listallnetworkservices | grep -E "Wi-Fi|Ethernet"); do

@@ -9,6 +9,17 @@ _os_name="$(uname)"
 _check_interval="5" # seconds
 _wg_interface="wg0"
 
+_arch="$(uname -m)"
+case "${_arch}" in
+    arm64)
+        _prefix="/opt/homebrew"
+        ;;
+
+    x86_64)
+        _prefix="/usr/local"
+        ;;
+esac
+
 
 restart_tunnel () {
     echo "Restarting ${_wg_interface} tunnel…"

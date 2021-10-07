@@ -25,12 +25,12 @@ case "${_os_name}" in
             sudo install -m600 -o root /tmp/wireguard /etc/sudoers.d/wireguard
         fi
 
-        mkdir -p "/usr/local/bin/" "/usr/local/etc/"
-        install -m 755 -v "bin/wg-workstation" "/usr/local/bin/wg-workstation"
-        install -m 600 -v "src/common" "/usr/local/etc/wg-common"
-        sed -i '' -e 's|\. src/common|. /usr/local/etc/wg-common|' "/usr/local/bin/wg-workstation"
-        install -m 600 -v "config/config.toml" "/usr/local/etc/wg-config.toml"
-        sed -i '' -e 's|config/config.toml|/usr/local/etc/wg-config.toml|' "/usr/local/etc/wg-common"
+        mkdir -p "${_prefix}/bin/" "${_prefix}/etc/"
+        install -m 755 -v "bin/wg-workstation" "${_prefix}/bin/wg-workstation"
+        install -m 600 -v "src/common" "${_prefix}/etc/wg-common"
+        sed -i '' -e 's|\. src/common|. ${_prefix}/etc/wg-common|' "${_prefix}/bin/wg-workstation"
+        install -m 600 -v "config/config.toml" "${_prefix}/etc/wg-config.toml"
+        sed -i '' -e 's|config/config.toml|${_prefix}/etc/wg-config.toml|' "${_prefix}/etc/wg-common"
 
         install -m 600 -v "launchd/com.wireguard.plist" "${HOME}/Library/LaunchAgents/com.wireguard.plist"
         launchctl unload -w "${HOME}/Library/LaunchAgents/com.wireguard.plist" 2>/dev/null
