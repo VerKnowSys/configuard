@@ -22,6 +22,7 @@ case "${_os_name}" in
         if [ ! -f "/etc/sudoers.d/wireguard" ]; then
             echo "/etc/sudoers.d/wireguard not found! Default one will be created."
             echo "${USER} ALL=(ALL) NOPASSWD: ${wireguard_quick} *" > /tmp/wireguard
+            echo "${USER} ALL=(ALL) NOPASSWD: ${_prefix}/bin/wg-quick *" >> /tmp/wireguard
             sudo install -m600 -o root /tmp/wireguard /etc/sudoers.d/wireguard
         fi
 
@@ -37,6 +38,14 @@ case "${_os_name}" in
         launchctl unload -w "${HOME}/Library/LaunchAgents/com.wireguard.plist" 2>/dev/null
         sleep 2
         launchctl load -w "${HOME}/Library/LaunchAgents/com.wireguard.plist"
+
+        case "${_arch}" in
+            arm64)
+                sudo mkdir -p "/usr/local/etc/wireguard"
+                sudo chown "${USER}" "/usr/local/etc/wireguard"
+                ln -fs /opt/homebrew/etc/wireguard/wg0.conf /usr/local/etc/wireguard/wg0.conf
+                ;;
+        esac
         ;;
 
     FreeBSD)

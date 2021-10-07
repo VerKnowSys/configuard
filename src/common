@@ -26,7 +26,7 @@ restart_tunnel () {
     case "${_os_name}" in
         Darwin)
             eval "sudo ${wireguard_quick} down ${_wg_interface}"
-            eval "sudo ${wireguard_quick} up ${_prefix}/etc/wireguard/${_wg_interface}.conf &"
+            eval "sudo ${wireguard_quick} up ${_wg_interface} &"
             ;;
 
         *)
