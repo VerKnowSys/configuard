@@ -14,7 +14,7 @@
   <key>EnvironmentVariables</key>
     <dict>
       <key>PATH</key>
-      <string>/sbin:/bin:/usr/bin:PREFIX/bin</string>
+      <string>PREFIX/bin:/sbin:/bin:/usr/bin</string>
     </dict>
   <key>RunAtLoad</key>
   <true/>
