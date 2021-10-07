@@ -98,7 +98,7 @@ curl -s -O "https://codeload.github.com/VerKnowSys/configuard/tar.gz/master"
 tar xf master
 cd /tmp/configuard-master
 cp "config/config.toml.$(uname)" "config/config.toml"
-sed -i '' -e "/uuid/d; /main_net/d; /server/d" "config/config.toml"
+sed -i '' -e "/uuid/d; /main_net/d; /server/d; s|PREFIX|${_prefix}|g;" "config/config.toml"
 echo "main_net = \"${_default_net}\"" >> "config/config.toml"
 bin/uninstall
 bin/install

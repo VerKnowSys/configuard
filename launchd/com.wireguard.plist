@@ -10,11 +10,11 @@
   <key>Label</key>
   <string>com.wireguard</string>
   <key>Program</key>
-  <string>/usr/local/bin/wg-workstation</string>
+  <string>PREFIX/bin/wg-workstation</string>
   <key>EnvironmentVariables</key>
     <dict>
       <key>PATH</key>
-      <string>/sbin:/bin:/usr/bin:/usr/local/bin</string>
+      <string>/sbin:/bin:/usr/bin:PREFIX/bin</string>
     </dict>
   <key>RunAtLoad</key>
   <true/>
