@@ -28,9 +28,9 @@ case "${_os_name}" in
         mkdir -p "${_prefix}/bin/" "${_prefix}/etc/"
         install -m 755 -v "bin/wg-workstation" "${_prefix}/bin/wg-workstation"
         install -m 600 -v "src/common" "${_prefix}/etc/wg-common"
-        sed -i '' -e 's|\. src/common|. ${_prefix}/etc/wg-common|' "${_prefix}/bin/wg-workstation"
+        sed -i '' -e "s|\. src/common|. ${_prefix}/etc/wg-common|" "${_prefix}/bin/wg-workstation"
         install -m 600 -v "config/config.toml" "${_prefix}/etc/wg-config.toml"
-        sed -i '' -e 's|config/config.toml|${_prefix}/etc/wg-config.toml|' "${_prefix}/etc/wg-common"
+        sed -i '' -e "s|config/config.toml|${_prefix}/etc/wg-config.toml|" "${_prefix}/etc/wg-common"
 
         sed -i '' -e "s|PREFIX|${_prefix}|g;" "launchd/com.wireguard.plist"
         install -m 600 -v "launchd/com.wireguard.plist" "${HOME}/Library/LaunchAgents/com.wireguard.plist"
