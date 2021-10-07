@@ -19,12 +19,8 @@ fi
 case "${_os_name}" in
     Darwin)
         # validate sudoers entry existence:
-        if [ ! -f "/etc/sudoers.d/wireguard" ]; then
-            echo "/etc/sudoers.d/wireguard not found! Default one will be created."
-            echo "${USER} ALL=(ALL) NOPASSWD: ${wireguard_quick} *" > /tmp/wireguard
-            echo "${USER} ALL=(ALL) NOPASSWD: ${_prefix}/bin/wg-quick *" >> /tmp/wireguard
-            sudo install -m600 -o root /tmp/wireguard /etc/sudoers.d/wireguard
-        fi
+        echo "${USER} ALL=(ALL) NOPASSWD: ${wireguard_quick} *" > /tmp/wireguard
+        sudo install -m600 -o root /tmp/wireguard /etc/sudoers.d/wireguard
 
         mkdir -p "${_prefix}/bin/" "${_prefix}/etc/"
         install -m 755 -v "bin/wg-workstation" "${_prefix}/bin/wg-workstation"
@@ -42,8 +38,7 @@ case "${_os_name}" in
         case "${_arch}" in
             arm64)
                 sudo mkdir -p "/usr/local/etc/wireguard"
-                sudo chown "${USER}" "/usr/local/etc/wireguard"
-                ln -fs /opt/homebrew/etc/wireguard/wg0.conf /usr/local/etc/wireguard/wg0.conf
+                sudo ln -fs /opt/homebrew/etc/wireguard/wg0.conf /usr/local/etc/wireguard/wg0.conf
                 ;;
         esac
         ;;
