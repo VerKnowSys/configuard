@@ -64,8 +64,6 @@ fn not_found(_req: &Request) -> String {
 async fn main() -> Result<(), rocket::Error> {
     validate_config(&config());
     rocket::build()
-        // .mount("/", routes![inventory, host, host_delete, ssh])
-        // .register("/", catchers![default_catcher])
         .mount(
             &format!("/{}/wireguard/instance/", config().uuid),
             routes![instances::new],
@@ -78,21 +76,3 @@ async fn main() -> Result<(), rocket::Error> {
         .launch()
         .await
 }
-
-
-// fn start() -> Rocket {
-//     // TODO: add validation if os is local vs server
-//     // TODO: add validation if user is root
-//     // #[cfg(os_target = "freebsd")]
-//     validate_config(&config());
-//     ignite()
-//         .mount(
-//             &format!("/{}/wireguard/instance/", config().uuid),
-//             routes![instances::new],
-//         )
-//         .mount(
-//             &format!("/{}/wireguard/workstation/", config().uuid),
-//             routes![workstations::new],
-//         )
-//         .register(catchers![internal_error, not_found])
-// }
