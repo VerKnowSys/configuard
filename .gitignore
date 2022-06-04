@@ -2,3 +2,4 @@
 entries/**
 *.lock
 config/config.toml
+*.sublime-workspace
