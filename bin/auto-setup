@@ -69,9 +69,9 @@ echo "Making sure ${_prefix} is owned by local user…"
 sudo chown -R ${USER} ${_prefix} >/dev/null 2>&1
 
 echo "Making sure brew requirements are installed…"
-which brew >/dev/null || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-which wg >/dev/null || ${_prefix}/bin/brew install wireguard-tools
-which dnsmasq >/dev/null || ${_prefix}/bin/brew install dnsmasq
+which brew >/dev/null || (/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)")
+which wg >/dev/null || (${_prefix}/bin/brew install wireguard-tools)
+which dnsmasq >/dev/null || (${_prefix}/bin/brew install dnsmasq)
 
 echo "Setting up local DNSmasq"
 sudo brew services start dnsmasq >/dev/null
