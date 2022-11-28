@@ -72,8 +72,11 @@ echo "Making sure brew requirements are installed…"
 which brew >/dev/null || (/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)")
 which wg >/dev/null || (${_prefix}/bin/brew install wireguard-tools)
 which dnsmasq >/dev/null || (${_prefix}/bin/brew install dnsmasq)
+export PATH="/opt/homebrew/bin:/usr/local/bin:${PATH}"
 
 echo "Setting up local DNSmasq"
+brew services start dnsmasq
+sudo brew services stop dnsmasq
 sudo brew services start dnsmasq >/dev/null
 printf "%s\n%s\n%s\n%s\n" \
     "listen-address=127.0.0.1" \
