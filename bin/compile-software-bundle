@@ -1,0 +1,80 @@
+#!/bin/sh
+
+set -e
+
+_current_software_bundle_version="2023-01"
+_arch="$(uname -m)"
+_os_version="$(sw_vers -productVersion)"
+_os_minor_release="${_os_version%.*}"
+_os_release="${_os_minor_release%.*}"
+_bundle="bundle-macos${_os_release}-${_arch}-${_current_software_bundle_version}"
+
+_prefix="/Users/Shared/Centra"
+_log="/tmp/build-bundle.log"
+_source="https://software.verknowsys.com/source"
+
+_dnsmasq_tarball="dnsmasq-2.88.tar.xz"
+_dnsmasq_dir="${_dnsmasq_tarball%.tar.xz}"
+
+_wireguard_tools_tarball="wireguard-tools-1.0.20210914.tar.xz"
+_wireguard_tools_dir="${_wireguard_tools_tarball%.tar.xz}"
+
+_wireguard_go_tarball="wireguard-go-0.0.20210323.tar.xz"
+_wireguard_go_dir="${_wireguard_go_tarball%.tar.xz}"
+
+echo "Downloading tarballs…"
+if [ ! -f "${_dnsmasq_tarball}" ]; then
+    curl -s -o "/tmp/${_dnsmasq_tarball}" "${_source}/${_dnsmasq_tarball}"
+fi
+if [ ! -f "${_wireguard_tools_tarball}" ]; then
+    curl -s -o "/tmp/${_wireguard_tools_tarball}" "${_source}/${_wireguard_tools_tarball}"
+fi
+if [ ! -f "${_wireguard_go_tarball}" ]; then
+    curl -s -o "/tmp/${_wireguard_go_tarball}" "${_source}/${_wireguard_go_tarball}"
+fi
+
+echo "Cleaning up…"
+(
+    cd /tmp;
+    rm -rf "${_dnsmasq_dir}";
+    rm -rf "${_wireguard_tools_dir}";
+    rm -rf "${_wireguard_go_dir}";
+)
+
+echo "Unpacking tarballs…"
+(
+    cd /tmp;
+    tar -xf "${_dnsmasq_tarball}";
+    tar -xf "${_wireguard_tools_tarball}";
+    tar -xf "${_wireguard_go_tarball}";
+)
+
+echo "Building and installing the software…"
+(
+    cd "/tmp/${_dnsmasq_dir}";
+    sed -i '' -e "s#src#\./src#; s#/usr/local#${_prefix}#;" Makefile;
+    sed -i '' -e "s#/etc/dnsmasq.conf#${_prefix}/dnsmasq.conf#;" src/config.h
+    make install > "${_log}" 2> "${_log}";
+
+    cd "/tmp/${_wireguard_tools_dir}/src";
+    sed -i '' -e "s#PREFIX \?=.*\$#PREFIX = ${_prefix}#; s#SYSCONFDIR \?=.*\$#SYSCONFDIR = ${_prefix}/etc#" Makefile;
+    make install >> "${_log}" 2>> "${_log}";
+
+    cd "/tmp/${_wireguard_go_dir}";
+    sed -i '' -e "s#PREFIX \?=.*\$#PREFIX = ${_prefix}#" Makefile;
+    make install >> "${_log}" 2>> "${_log}";
+)
+
+echo "Preparing software bundle…"
+(
+    cd "${_prefix}";
+    tar -cJf "${_bundle}.tar.xz" --exclude "*.tar.xz" bin sbin etc share;
+)
+
+echo "Sending software bundle to remote…"
+(
+    cd "${_prefix}";
+    scp -P 60022 "${_bundle}.tar.xz" "sofin@software.verknowsys.com:/Web/Mirror/software/vpn-bundles/${_bundle}.tar.xz";
+    rm -f "${_bundle}.tar.xz";
+)
+echo "Done."
