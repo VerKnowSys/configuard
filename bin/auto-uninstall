@@ -11,9 +11,8 @@ brew uninstall wireguard-tools dnsmasq 2>/dev/null
 rm -rf /opt/homebrew/etc/dnsmasq.*
 
 # clean the "new" prefix
-_prefix="/Users/Shared/Centra"
-if [ -d "${_prefix}" ]; then
-    rm -rf "${_prefix}"
+if [ -d "${_software_prefix}" ]; then
+    rm -rf "${_software_prefix}"
 fi
 
 echo "Falling back to the default DNS…"
