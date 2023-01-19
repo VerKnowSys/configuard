@@ -5,6 +5,7 @@ _software_prefix="/Users/Shared/Centra"
 echo "Uninstalling (you may be prompted for local user password)…"
 launchctl unload -w "${HOME}/Library/LaunchAgents/com.wireguard.plist" 2>/dev/null
 sudo launchctl unload -w "/Library/LaunchDaemons/com.centra.dnsmasq.plist" 2>/dev/null
+sudo launchctl unload -w "/Library/LaunchDaemons/homebrew.mxcl.dnsmasq.plist" 2>/dev/null
 rm -f "config/config.toml" "${_software_prefix}/etc/wireguard/wg0.conf"
 brew uninstall wireguard-tools dnsmasq 2>/dev/null
 rm -rf /opt/homebrew/etc/dnsmasq.*
