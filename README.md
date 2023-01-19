@@ -19,13 +19,7 @@ This is HTTP service that manages WireGuard-server configuration via API.
 
 ## Quick install:
 
-If you have Pass vault access:
-
-`curl -s https://raw.githubusercontent.com/VerKnowSys/configuard/master/bin/auto-setup | bash -s YOURuniqueNAME`
-
-If you don't have Pass vault:
-
-`curl -s https://raw.githubusercontent.com/VerKnowSys/configuard/master/bin/auto-setup | bash -s YOURuniqueNAME your.internal.domain http://ask-devops-for-configuard-link`
+`curl -s https://raw.githubusercontent.com/VerKnowSys/configuard/master/bin/auto-setup | bash -s YOURuniqueNAME http://ask-devops-for-configuard-link`
 
 
 ## Quick uninstall:
@@ -68,7 +62,7 @@ wireguard_conf = "/Services/Wireguard-tools/wg0.conf" # full path to wg0.conf
 
 ### workstation side, Darwin only:
 
-- Install latest version of Wireguard tools:
+- TODO: Install latest version of Wireguard tools:
   `brew install wireguard-tools`
 
 - Fetch your configuration from your configuard server and store it in local configuration file:

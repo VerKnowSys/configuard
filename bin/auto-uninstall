@@ -1,22 +1,21 @@
 #!/bin/sh
 
-case "$(uname -m)" in
-    arm64)
-        _prefix="/opt/homebrew"
-        ;;
-
-    x86_64)
-        _prefix="/usr/local"
-        ;;
-esac
-
+_software_prefix="/Users/Shared/Centra"
 
 echo "Uninstalling (you may be prompted for local user password)…"
-launchctl unload -w "${HOME}/Library/LaunchAgents/com.wireguard.plist"
+launchctl unload -w "${HOME}/Library/LaunchAgents/com.wireguard.plist" 2>/dev/null
+sudo launchctl unload -w "/Library/LaunchDaemons/com.centra.dnsmasq.plist" 2>/dev/null
+rm -f "config/config.toml" "${_software_prefix}/etc/wireguard/wg0.conf"
+brew uninstall wireguard-tools dnsmasq 2>/dev/null
+rm -rf /opt/homebrew/etc/dnsmasq.*
 
-rm -f "${_prefix}/etc/wireguard/wg0.conf"
+# clean the "new" prefix
+_prefix="/Users/Shared/Centra"
+if [ -d "${_prefix}" ]; then
+    rm -rf "${_prefix}"
+fi
 
-echo "Setting default DNS…"
+echo "Falling back to the default DNS…"
 for _network in $(networksetup -listallnetworkservices | grep -E "Wi-Fi|Ethernet"); do
     networksetup -setdnsservers "${_network}" "1.1.1.1"
 done

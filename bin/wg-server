@@ -7,7 +7,7 @@ validate_config
 define_process_name
 
 
-if [ "FreeBSD" != "${_os_name}" ]; then
+if [ "FreeBSD" != "${OS_NAME}" ]; then
     error "Wireguard server is supposed to be HardenedBSD host!"
 fi
 

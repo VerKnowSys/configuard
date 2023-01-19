@@ -8,10 +8,10 @@ load_configuard
 validate_config
 define_process_name
 
-case "${_os_name}" in
+case "${OS_NAME}" in
     Darwin)
         launchctl unload -w "${HOME}/Library/LaunchAgents/com.wireguard.plist"
-        rm -vf "${_prefix}/bin/wg-workstation" "${HOME}/Library/LaunchAgents/com.wireguard.plist"
+        rm -vf "${SOFTWARE_PREFIX}/bin/wg-workstation" "${HOME}/Library/LaunchAgents/com.wireguard.plist"
         ;;
 
     FreeBSD)

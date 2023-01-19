@@ -7,7 +7,7 @@ validate_config
 define_process_name
 
 
-if [ "Darwin" != "${_os_name}" ]; then
+if [ "Darwin" != "${OS_NAME}" ]; then
     error "Wireguard workstation is supposed to be Darwin host!"
 fi
 chmod 600 "${wireguard_conf}"

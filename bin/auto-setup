@@ -1,109 +1,196 @@
 #!/bin/sh
 
+# from src/common
+_git_branch="bundled-software"
+_software_prefix="/Users/Shared/Centra"
+
+_sofin_loader="/Software/Sofin/share/loader"
+_configuard_config="config/config.toml"
+_profile="${HOME}/.profile"
+_check_interval="5" # seconds
+_wg_interface="wg0"
+_os_name="$(uname)"
+_arch="$(uname -m)"
+
+_os_version="$(sw_vers -productVersion)"
+_os_minor_release="${_os_version%.*}"
+_os_release="${_os_minor_release%.*}"
+export PATH="${_software_prefix}/bin:${_software_prefix}/sbin:/usr/local/bin:/usr/bin:/bin:/sbin:/Software/Wireguard-tools/exports"
+
+
+# don't quit after any failure
 set +e
 
-_arch="$(uname -m)"
-case "${_arch}" in
-    arm64)
-        _prefix="/opt/homebrew"
-        ;;
+echo
+echo "This script will install and configure VPN on your machine."
+echo "Checking for XCode Tools…"
+xcode-select --install
 
-    x86_64)
-        _prefix="/usr/local"
-        ;;
-esac
+echo
+echo "To proceed you'll have to enter the local workstation password (it will not be printed out on the screen during typing)"
+echo
+echo "Please enter the password for user \"${USER-:noname}\" on the host \"${HOST:-localhost}\":"
+sudo uname -a
 
-mkdir -p "${HOME}/Library/LaunchAgents"
-export PATH="${_prefix}/bin:/bin:/usr/bin:/sbin:/usr/sbin"
-
-if [ -z "${1}" ]; then
-    echo "Please specify your unique name as first argument (only alpha-numeric, numbers and - .)!"
-    exit 1
-fi
-_default_net="198.18"
+# input
 _yourname="${1}"
-_domain="$(pass ops/wireguard/domain 2>/dev/null)"
+_configuard_link="${2}"
 
-echo "PATH: ${PATH}"
-echo "PREFIX: ${_prefix}"
-echo "ARCH: ${_arch}"
-echo "USER: ${_yourname}"
-echo "DOMAIN: ${_domain}"
 
-_dnsmasq_domain="${2:-${_domain}}"
-if [ -z "${_dnsmasq_domain}" ]; then
-    echo "No internal domain provided or available through vault."
-    exit 1
+_domain="int.centra.systems"
+_default_net="198.18"
+_dnsmasq_plist="com.centra.dnsmasq.plist"
+
+# software bundle
+_current_software_bundle_version="2023-01"
+_bundle="bundle-macos${_os_release}-${_arch}-${_current_software_bundle_version}"
+_bundle_link="https://software.verknowsys.com/vpn-bundles/${_bundle}.tar.xz"
+
+# override PATH
+export PATH="${_software_prefix}/sbin:${_software_prefix}/bin:/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin"
+
+# show error and quit with given exit code
+error () {
+    echo "ERROR: ${1}"
+    exit "${2:-1}"
+}
+
+# fetch prebuilt software bundle per OS architecture
+fetch_and_unpack_software_bundle () {
+    echo "Fetching prebuilt software bundle…"
+    echo "Fetching software bundle: ${_bundle_link}…"
+    curl -s -o "/tmp/${_bundle_link##*/}" "${_bundle_link}"
+    if [ ! -f "/tmp/${_bundle_link##*/}" ]; then
+        error "Failed to fetch software bundle: ${_bundle_link}" 5
+    fi
+    tar -xf "/tmp/${_bundle_link##*/}" --directory "${_software_prefix}/"
+}
+
+# sanity checks
+mkdir -p \
+    "${_software_prefix}" \
+    "${HOME}/Library/LaunchAgents"
+if [ -z "${_yourname}" ]; then
+    error "No configuard user-name provided (as the first argument). Setup aborted!" 3
 fi
-_configuard_link="${3}"
-echo "Internal network domain is: ${_dnsmasq_domain}"
-
-if [ -f "/Library/LaunchAgents/com.centra.dns-auto-set.plist" ]; then
-    echo "Uninstalling dns-auto-set"
-    sudo launchctl unload -w "/Library/LaunchAgents/com.centra.dns-auto-set.plist" >/dev/null 2>&1
+if [ -z "${_configuard_link}" ]; then
+    error "No configuard address provided (as the second argument). Setup aborted!" 3
 fi
-sudo rm -f "${_prefix}/bin/dns-auto-conf" "/Library/LaunchAgents/com.centra.dns-auto-set.plist" >/dev/null 2>&1
 
+# echo "PATH: ${PATH}"
+# echo "PREFIX: ${_software_prefix}"
+# echo "_arch: ${_arch}"
+# echo "USER: ${_yourname}"
+# echo "DOMAIN: ${_domain}"
+
+fetch_and_unpack_software_bundle
+which wg >/dev/null \
+    || error "No wg binary found?!" 2
+which wg-quick >/dev/null \
+    || error "No wg-quick binary found?!" 2
+which wireguard-go >/dev/null \
+    || error "No wireguard-go binary found?!" 2
+which dnsmasq >/dev/null \
+    || error "No dnsmasq binary found?!" 2
+
+
+# main():
+echo "Resetting DNS…"
 for _network in $(networksetup -listallnetworkservices | sed -e '/ /d' | grep -E "Wi-Fi|Ethernet"); do
     networksetup -setdnsservers "${_network}" "1.1.1.1"
 done
 
-if [ -z "${_configuard_link}" ]; then
-    _address="$(pass ops/wireguard/address)"
-    _uuid="$(pass ops/wireguard/uuid)"
-    if [ -z "${_address}" ] \
-    || [ -z "${_uuid}" ]; then
-        echo "No wireguard values available from pass vault!"
-        echo "If you wish to continue, please ask your DevOps about direct link to Configuard"
-    else
-        _configuard_link="https://${_address}/${_uuid}/wireguard/workstation"
-    fi
+echo "Configuring DNSmasq service…"
+cat > "/tmp/${_dnsmasq_plist}" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+        <key>KeepAlive</key>
+        <true/>
+        <key>Label</key>
+        <string>com.centra.dnsmasq</string>
+        <key>LimitLoadToSessionType</key>
+        <array>
+                <string>Aqua</string>
+                <string>Background</string>
+                <string>LoginWindow</string>
+                <string>StandardIO</string>
+                <string>System</string>
+        </array>
+        <key>ProgramArguments</key>
+        <array>
+                <string>${_software_prefix}/sbin/dnsmasq</string>
+                <string>--keep-in-foreground</string>
+                <string>-C</string>
+                <string>${_software_prefix}/etc/dnsmasq.conf</string>
+                <string>-7</string>
+                <string>${_software_prefix}/etc/dnsmasq.d,*.conf</string>
+        </array>
+        <key>RunAtLoad</key>
+        <true/>
+</dict>
+</plist>
+EOF
 
-    if [ -z "${_configuard_link}" ]; then
-        echo "Couldn't determine configuard link. Setup aborted!"
-        exit 3
-    fi
-fi
-
-echo "Making sure ${_prefix} is owned by local user…"
-sudo chown -R ${USER} ${_prefix} >/dev/null 2>&1
-
-echo "Making sure brew requirements are installed…"
-which brew >/dev/null || (/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)")
-which wg >/dev/null || (${_prefix}/bin/brew install wireguard-tools)
-which dnsmasq >/dev/null || (${_prefix}/bin/brew install dnsmasq)
-export PATH="/opt/homebrew/bin:/usr/local/bin:${PATH}"
-
-echo "Setting up local DNSmasq"
-brew services start dnsmasq
-sudo brew services stop dnsmasq
-sudo brew services start dnsmasq >/dev/null
+echo "Configuring DNSmasq…"
 printf "%s\n%s\n%s\n%s\n" \
     "listen-address=127.0.0.1" \
-    "server=/${_dnsmasq_domain}/${_default_net}.1.1" \
+    "server=/${_domain}/${_default_net}.1.1" \
     "server=1.1.1.1" \
     "server=8.8.8.8" \
-    > ${_prefix}/etc/dnsmasq.conf
-sudo brew services restart dnsmasq
+    > "${_software_prefix}/etc/dnsmasq.conf"
+
+echo "Launching DNSmasq service…"
+(
+    sudo launchctl unload -w "/Library/LaunchDaemons/${_dnsmasq_plist}" 2>/dev/null;
+    sudo install -o 0 -g 0 \
+        "/tmp/${_dnsmasq_plist}" \
+        "/Library/LaunchDaemons/${_dnsmasq_plist}";
+    sudo launchctl load -w "/Library/LaunchDaemons/${_dnsmasq_plist}";
+)
+
+sleep 5
+
+dig +short google.com @127.0.0.1 >/dev/null
+if [ "0" != "${?}" ]; then
+    error "DNSmasq DNS validation query has failed!" 6
+fi
 for _network in $(networksetup -listallnetworkservices | sed -e '/ /d' | grep -E "Wi-Fi|Ethernet"); do
     networksetup -setdnsservers "${_network}" "127.0.0.1"
 done
 
-echo "Proceeding with installation (you may be promped for your local user password)…"
-mkdir -p ${_prefix}/etc/wireguard
-curl -XPOST "${_configuard_link}/${_yourname}" > /tmp/configuard-wg0.conf
-mv -v /tmp/configuard-wg0.conf ${_prefix}/etc/wireguard/wg0.conf
+echo "Fetching Wireguard configuration…"
+curl -s -XPOST "${_configuard_link}/${_yourname}" > "${_software_prefix}/etc/wireguard/wg0.conf"
 
-echo "Installing Configuard"
-cd /tmp
-rm -f master
-curl -s -O "https://codeload.github.com/VerKnowSys/configuard/tar.gz/master"
-tar xf master
-cd /tmp/configuard-master
-cp "config/config.toml.$(uname)" "config/config.toml"
-sed -i '' -e "/uuid/d; /main_net/d; /server/d; s|PREFIX|${_prefix}|g;" "config/config.toml"
-echo "main_net = \"${_default_net}\"" >> "config/config.toml"
-bin/uninstall
-bin/install
-cd ~
-rm -rf /tmp/configuard-master /tmp/master
+echo "Installing Configuard…"
+if [ "local" = "${3}" ]; then
+    (
+        cp "config/config.toml.${_os_name}" "config/config.toml";
+        sed -i '' -e "/uuid/d; /main_net/d; /server/d; s|PREFIX|${_software_prefix}|g;" "config/config.toml";
+        echo "main_net = \"${_default_net}\"" >> "config/config.toml";
+        bin/uninstall;
+        bin/install;
+    )
+else
+    (
+        cd /tmp;
+        rm -f "${_git_branch}";
+        curl -s -O "https://codeload.github.com/VerKnowSys/configuard/tar.gz/${_git_branch}";
+        tar xf "${_git_branch}";
+        cd "/tmp/configuard-${_git_branch}";
+        cp "config/config.toml.${_os_name}" "config/config.toml";
+        sed -i '' -e "/uuid/d; /main_net/d; /server/d; s|PREFIX|${_software_prefix}|g;" "config/config.toml";
+        echo "main_net = \"${_default_net}\"" >> "config/config.toml";
+        rm -rf "/tmp/configuard-${_git_branch}" "/tmp/${_git_branch}";
+        bin/uninstall;
+        bin/install;
+    )
+fi
+
+_validation_ip="$(dig +short "${_domain}" 2>/dev/null)"
+if [ "${_validation_ip}" != "${_default_net}.1.1" ]; then
+    error "Domain: ${_domain} should resolve to: ${_default_net}.1.1!"
+fi
+
+echo "VPN setup is now validated and complete! 🎉"

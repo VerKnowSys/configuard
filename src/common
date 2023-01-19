@@ -1,29 +1,25 @@
 #!/bin/sh
 
-export PATH="/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/sbin:/Software/Wireguard-tools/exports"
+export GIT_BRANCH="bundled-software"
+export SOFTWARE_PREFIX="/Users/Shared/Centra"
+export PATH="${SOFTWARE_PREFIX}/bin:${SOFTWARE_PREFIX}/sbin:/usr/local/bin:/usr/bin:/bin:/sbin:/Software/Wireguard-tools/exports"
 
 _sofin_loader="/Software/Sofin/share/loader"
 _configuard_config="config/config.toml"
 _profile="${HOME}/.profile"
-_os_name="$(uname)"
+export OS_NAME="$(uname)"
 _check_interval="5" # seconds
 _wg_interface="wg0"
+export ARCH="$(uname -m)"
 
-_arch="$(uname -m)"
-case "${_arch}" in
-    arm64)
-        _prefix="/opt/homebrew"
-        ;;
-
-    x86_64)
-        _prefix="/usr/local"
-        ;;
-esac
+_os_version="$(sw_vers -productVersion)"
+_os_minor_release="${_os_version%.*}"
+export OS_RELEASE="${_os_minor_release%.*}"
 
 
 restart_tunnel () {
     echo "Restarting ${_wg_interface} tunnel…"
-    case "${_os_name}" in
+    case "${OS_NAME}" in
         Darwin)
             eval "sudo ${wireguard_quick} down ${_wg_interface}"
             eval "sudo ${wireguard_quick} up ${_wg_interface} &"
@@ -38,7 +34,7 @@ restart_tunnel () {
 
 
 define_process_name () {
-    case "${_os_name}" in
+    case "${OS_NAME}" in
         Linux)
             # NOTE: currently only Linux supports stable kernel module for wg:
             _wg_name="wg-crypt-wg0"
