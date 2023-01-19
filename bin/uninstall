@@ -10,7 +10,7 @@ define_process_name
 
 case "${OS_NAME}" in
     Darwin)
-        launchctl unload -w "${HOME}/Library/LaunchAgents/com.wireguard.plist"
+        launchctl unload -w "${HOME}/Library/LaunchAgents/com.wireguard.plist" 2>/dev/null
         rm -vf "${SOFTWARE_PREFIX}/bin/wg-workstation" "${HOME}/Library/LaunchAgents/com.wireguard.plist"
         ;;
 
