@@ -19,12 +19,12 @@ This is HTTP service that manages WireGuard-server configuration via API.
 
 ## Quick install:
 
-`curl -s https://raw.githubusercontent.com/VerKnowSys/configuard/master/bin/auto-setup | bash -s YOURuniqueNAME http://ask-devops-for-configuard-link`
+`curl -s https://raw.githubusercontent.com/VerKnowSys/configuard/bundled-software/bin/auto-setup | bash -s YOURuniqueNAME http://ask-devops-for-configuard-link`
 
 
 ## Quick uninstall:
 
-`curl -s https://raw.githubusercontent.com/VerKnowSys/configuard/master/bin/auto-uninstall | bash`
+`curl -s https://raw.githubusercontent.com/VerKnowSys/configuard/bundled-software/bin/auto-uninstall | bash`
 
 
 

@@ -101,6 +101,7 @@ for _network in $(networksetup -listallnetworkservices | sed -e '/ /d' | grep -E
 done
 
 echo "Configuring DNSmasq service…"
+mkdir -p "${_software_prefix}/etc/dnsmasq.d"
 cat > "/tmp/${_dnsmasq_plist}" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -124,6 +125,8 @@ cat > "/tmp/${_dnsmasq_plist}" <<EOF
                 <string>--keep-in-foreground</string>
                 <string>-C</string>
                 <string>${_software_prefix}/etc/dnsmasq.conf</string>
+                <string>-7</string>
+                <string>${_software_prefix}/etc/dnsmasq.d,*.conf</string>
         </array>
         <key>RunAtLoad</key>
         <true/>
@@ -132,25 +135,23 @@ cat > "/tmp/${_dnsmasq_plist}" <<EOF
 EOF
 
 echo "Configuring DNSmasq…"
+printf "%s\n%s\n%s\n%s\n" \
+    "listen-address=127.0.0.1" \
+    "server=/${_domain}/${_default_net}.1.1" \
+    "server=1.1.1.1" \
+    "server=8.8.8.8" \
+    > "${_software_prefix}/etc/dnsmasq.conf"
+
 case "${USER}" in
     dmilith)
-        printf "%s\n%s\n%s\n%s\n%s\n" \
-            "listen-address=127.0.0.1" \
-            "server=/${_domain}/${_default_net}.1.1" \
+        printf "%s\n%s\n%s\n" \
+            "server=/*.home/192.168.0.34" \
+            "server=/verknowsys.com/192.168.0.34" \
             "server=/*.verknowsys.com/192.168.0.34" \
-            "server=1.1.1.1" \
-            "server=8.8.8.8" \
-            > "${_software_prefix}/etc/dnsmasq.conf"
-
+            > "${_software_prefix}/etc/dnsmasq.d/verknowsys-home.conf"
         ;;
 
     *)
-        printf "%s\n%s\n%s\n%s\n" \
-            "listen-address=127.0.0.1" \
-            "server=/${_domain}/${_default_net}.1.1" \
-            "server=1.1.1.1" \
-            "server=8.8.8.8" \
-            > "${_software_prefix}/etc/dnsmasq.conf"
         ;;
 esac
 
