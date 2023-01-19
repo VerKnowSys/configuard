@@ -134,12 +134,28 @@ cat > "/tmp/${_dnsmasq_plist}" <<EOF
 EOF
 
 echo "Configuring DNSmasq…"
-printf "%s\n%s\n%s\n%s\n" \
-    "listen-address=127.0.0.1" \
-    "server=/${_domain}/${_default_net}.1.1" \
-    "server=1.1.1.1" \
-    "server=8.8.8.8" \
-    > "${_software_prefix}/etc/dnsmasq.conf"
+case "${USER}" in
+    dmilith)
+        printf "%s\n%s\n%s\n%s\n%s\n" \
+            "listen-address=127.0.0.1" \
+            "server=/${_domain}/${_default_net}.1.1" \
+            "server=/*.verknowsys.com/192.168.0.34" \
+            "server=1.1.1.1" \
+            "server=8.8.8.8" \
+            > "${_software_prefix}/etc/dnsmasq.conf"
+
+        ;;
+
+    *)
+        printf "%s\n%s\n%s\n%s\n" \
+            "listen-address=127.0.0.1" \
+            "server=/${_domain}/${_default_net}.1.1" \
+            "server=1.1.1.1" \
+            "server=8.8.8.8" \
+            > "${_software_prefix}/etc/dnsmasq.conf"
+        ;;
+esac
+
 
 echo "Launching DNSmasq service…"
 (
