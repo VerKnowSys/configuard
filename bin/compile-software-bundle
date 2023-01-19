@@ -22,6 +22,12 @@ _wireguard_tools_dir="${_wireguard_tools_tarball%.tar.xz}"
 _wireguard_go_tarball="wireguard-go-0.0.20210323.tar.xz"
 _wireguard_go_dir="${_wireguard_go_tarball%.tar.xz}"
 
+_bash4_tarball="bash-5.2.9.tar.gz"
+_bash4_dir="${_bash4_tarball%.tar.gz}"
+
+echo "Cleaning old prefix: ${_prefix}"
+rm -rf "${_prefix}"
+
 echo "Downloading tarballs…"
 if [ ! -f "${_dnsmasq_tarball}" ]; then
     curl -s -o "/tmp/${_dnsmasq_tarball}" "${_source}/${_dnsmasq_tarball}"
@@ -32,6 +38,9 @@ fi
 if [ ! -f "${_wireguard_go_tarball}" ]; then
     curl -s -o "/tmp/${_wireguard_go_tarball}" "${_source}/${_wireguard_go_tarball}"
 fi
+if [ ! -f "${_bash4_tarball}" ]; then
+    curl -s -o "/tmp/${_bash4_tarball}" "${_source}/${_bash4_tarball}"
+fi
 
 cleanup () {
     echo "Cleaning up…"
@@ -39,7 +48,7 @@ cleanup () {
         cd /tmp;
         rm -rf "${_dnsmasq_dir}";
         rm -rf "${_wireguard_tools_dir}";
-    rm -rf "${_wireguard_go_dir}";
+        rm -rf "${_wireguard_go_dir}";
     )
 }
 
@@ -51,9 +60,10 @@ echo "Unpacking tarballs…"
     tar -xf "${_dnsmasq_tarball}";
     tar -xf "${_wireguard_tools_tarball}";
     tar -xf "${_wireguard_go_tarball}";
+    tar -xf "${_bash4_tarball}";
 )
 
-echo "Building and installing the software…"
+echo "Building and installing the software (this may take a minute or two)…"
 (
     cd "/tmp/${_dnsmasq_dir}";
     sed -i '' -e "s#src#\./src#; s#/usr/local#${_prefix}#;" Makefile;
@@ -68,6 +78,11 @@ echo "Building and installing the software…"
     sed -i '' -e "s#PREFIX \?=.*\$#PREFIX = ${_prefix}#" Makefile;
     GOPATH=/tmp make install >> "${_log}" 2>> "${_log}";
 
+    cd "/tmp/${_bash4_dir}";
+    ./configure --prefix="${_prefix}" >> "${_log}" 2>> "${_log}";
+    make install >> "${_log}" 2>> "${_log}";
+
+    sed -i '' -e "s#/usr/local#${_prefix}#g; s#/usr/bin/env bash#${_prefix}/bin/bash#g;" "${_prefix}/bin/wg-quick";
     cleanup;
 )
 
