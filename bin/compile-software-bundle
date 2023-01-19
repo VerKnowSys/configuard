@@ -33,13 +33,17 @@ if [ ! -f "${_wireguard_go_tarball}" ]; then
     curl -s -o "/tmp/${_wireguard_go_tarball}" "${_source}/${_wireguard_go_tarball}"
 fi
 
-echo "Cleaning up…"
-(
-    cd /tmp;
-    rm -rf "${_dnsmasq_dir}";
-    rm -rf "${_wireguard_tools_dir}";
+cleanup () {
+    echo "Cleaning up…"
+    (
+        cd /tmp;
+        rm -rf "${_dnsmasq_dir}";
+        rm -rf "${_wireguard_tools_dir}";
     rm -rf "${_wireguard_go_dir}";
-)
+    )
+}
+
+cleanup
 
 echo "Unpacking tarballs…"
 (
@@ -62,7 +66,9 @@ echo "Building and installing the software…"
 
     cd "/tmp/${_wireguard_go_dir}";
     sed -i '' -e "s#PREFIX \?=.*\$#PREFIX = ${_prefix}#" Makefile;
-    make install >> "${_log}" 2>> "${_log}";
+    GOPATH=/tmp make install >> "${_log}" 2>> "${_log}";
+
+    cleanup;
 )
 
 echo "Preparing software bundle…"
