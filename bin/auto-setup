@@ -124,8 +124,6 @@ cat > "/tmp/${_dnsmasq_plist}" <<EOF
                 <string>--keep-in-foreground</string>
                 <string>-C</string>
                 <string>${_software_prefix}/etc/dnsmasq.conf</string>
-                <string>-7</string>
-                <string>${_software_prefix}/etc/dnsmasq.d,*.conf</string>
         </array>
         <key>RunAtLoad</key>
         <true/>
