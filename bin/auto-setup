@@ -182,9 +182,9 @@ else
         cp "config/config.toml.${_os_name}" "config/config.toml";
         sed -i '' -e "/uuid/d; /main_net/d; /server/d; s|PREFIX|${_software_prefix}|g;" "config/config.toml";
         echo "main_net = \"${_default_net}\"" >> "config/config.toml";
-        rm -rf "/tmp/configuard-${_git_branch}" "/tmp/${_git_branch}";
         bin/uninstall;
         bin/install;
+        rm -rf "/tmp/configuard-${_git_branch}" "/tmp/${_git_branch}";
     )
 fi
 
