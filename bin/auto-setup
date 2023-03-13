@@ -57,7 +57,11 @@ error () {
 
 # fetch prebuilt software bundle per OS architecture
 fetch_and_unpack_software_bundle () {
-    echo "Fetching prebuilt software bundle…"
+    if [ -f "/tmp/${_bundle_link##*/}" ]; then
+        echo "Cleaning previous bundles…"
+        rm -f "/tmp/${_bundle_link##*/}"
+    fi
+
     echo "Fetching software bundle: ${_bundle_link}…"
     curl -s -o "/tmp/${_bundle_link##*/}" "${_bundle_link}"
     if [ ! -f "/tmp/${_bundle_link##*/}" ]; then
