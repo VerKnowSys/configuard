@@ -206,7 +206,7 @@ fi
 
 _validation_ip="$(dig +short "${_domain}" 2>/dev/null)"
 if [ "${_validation_ip}" != "${_default_net}.1.1" ]; then
-    for _network in $(networksetup -listallnetworkservices | sed -e '/ /d' | grep -E "Wi-Fi|Ethernet"); do
+    for _network in $(networksetup -listallnetworkservices | awk '!/ / {print $1;}'); do
         networksetup -setdnsservers "${_network}" "Empty"
     done
     error "Domain: ${_domain} should resolve to: ${_default_net}.1.1! Reverted DNS settings to the router defaults!"
