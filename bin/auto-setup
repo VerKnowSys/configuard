@@ -84,12 +84,6 @@ if [ -z "${_configuard_link}" ]; then
     error "No configuard address provided (as the second argument). Setup aborted!" 3
 fi
 
-# echo "PATH: ${PATH}"
-# echo "PREFIX: ${_software_prefix}"
-# echo "_arch: ${_arch}"
-# echo "USER: ${_yourname}"
-# echo "DOMAIN: ${_domain}"
-
 fetch_and_unpack_software_bundle
 which wg >/dev/null \
     || error "No wg binary found?!" 2
