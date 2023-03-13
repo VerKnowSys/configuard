@@ -97,7 +97,7 @@ which dnsmasq >/dev/null \
 
 # main():
 echo "Resetting DNS…"
-for _network in $(networksetup -listallnetworkservices | sed -e '/ /d' | grep -E "Wi-Fi|Ethernet"); do
+for _network in $(networksetup -listallnetworkservices | awk '!/ / {print $1;}'); do
     networksetup -setdnsservers "${_network}" "1.1.1.1"
 done
 
@@ -172,7 +172,7 @@ dig +short google.com @127.0.0.1 >/dev/null
 if [ "0" != "${?}" ]; then
     error "DNSmasq DNS validation query has failed!" 6
 fi
-for _network in $(networksetup -listallnetworkservices | sed -e '/ /d' | grep -E "Wi-Fi|Ethernet"); do
+for _network in $(networksetup -listallnetworkservices | awk '!/ / {print $1;}'); do
     networksetup -setdnsservers "${_network}" "127.0.0.1"
 done
 
