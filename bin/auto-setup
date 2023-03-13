@@ -68,6 +68,9 @@ fetch_and_unpack_software_bundle () {
         error "Failed to fetch software bundle: ${_bundle_link}" 5
     fi
     tar -xf "/tmp/${_bundle_link##*/}" --directory "${_software_prefix}/"
+
+    echo "Disabling Quarantine for trusted binaries…"
+    xattr -r -d com.apple.quarantine "${_software_prefix}"
 }
 
 # sanity checks
