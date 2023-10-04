@@ -20,6 +20,7 @@ case "${OS_NAME}" in
     Darwin)
         # validate sudoers entry existence:
         echo "${USER} ALL=(ALL) NOPASSWD: ${wireguard_quick} *" > /tmp/wireguard
+        sudo mkdir -p /etc/sudoers.d
         sudo install -m600 -o root /tmp/wireguard /etc/sudoers.d/wireguard
 
         mkdir -p "${SOFTWARE_PREFIX}/bin/" "${SOFTWARE_PREFIX}/etc/"
