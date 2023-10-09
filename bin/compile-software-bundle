@@ -28,10 +28,16 @@ _wireguard_go_dir="${_wireguard_go_tarball%.tar.xz}"
 _bash4_tarball="bash-5.2.9.tar.gz"
 _bash4_dir="${_bash4_tarball%.tar.gz}"
 
+_xz_tarball="xz-5.2.6.tar.xz"
+_xz_dir="${_xz_tarball%.tar.xz}"
+
 echo "Cleaning old prefix: ${_prefix}"
 rm -rf "${_prefix}"
 
 echo "Downloading tarballs…"
+if [ ! -f "${_xz_tarball}" ]; then
+    curl -s -o "/tmp/${_xz_tarball}" "${_source}/${_xz_tarball}"
+fi
 if [ ! -f "${_gcloud_tarball}" ]; then
     curl -s -o "/tmp/${_gcloud_tarball}" "${_source}/${_gcloud_tarball}"
 fi
@@ -52,6 +58,7 @@ cleanup () {
     echo "Cleaning up…"
     (
         cd /tmp;
+        rm -rf "${_xz_dir}";
         rm -rf "${_gcloud_dir}";
         rm -rf "${_dnsmasq_dir}";
         rm -rf "${_wireguard_tools_dir}";
@@ -64,6 +71,7 @@ cleanup
 echo "Unpacking tarballs…"
 (
     cd /tmp;
+    tar -xf "${_xz_tarball}";
     tar -xf "${_gcloud_tarball}";
     tar -xf "${_dnsmasq_tarball}";
     tar -xf "${_wireguard_tools_tarball}";
@@ -74,6 +82,10 @@ echo "Unpacking tarballs…"
 echo "Building and installing the software (this may take a minute or two)…"
 (
     mkdir -p "${_prefix}";
+
+    cd "/tmp/${_xz_dir}";
+    ./configure --prefix="${_prefix}" >> "${_log}" 2>> "${_log}";
+    make install >> "${_log}" 2>> "${_log}";
 
     cd "/tmp/${_gcloud_dir}";
     cp -R ./ "${_prefix}/";
