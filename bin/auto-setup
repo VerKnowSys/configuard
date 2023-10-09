@@ -15,8 +15,18 @@ _arch="$(uname -m)"
 _os_version="$(sw_vers -productVersion)"
 _os_minor_release="${_os_version%.*}"
 _os_release="${_os_minor_release%.*}"
-export PATH="${_software_prefix}/bin:${_software_prefix}/sbin:/usr/local/bin:/usr/bin:/bin:/sbin:/Software/Wireguard-tools/exports"
+export PATH="${_software_prefix}/bin:${_software_prefix}/sbin:/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/sbin:/Software/Wireguard-tools/exports"
 
+# show error and quit with given exit code
+error () {
+    echo "ERROR: ${1}"
+    exit "${2:-1}"
+}
+
+if [ -z "${1}" ]; then
+    echo "No argument with the Configuard endpoint provided!"
+    exit 1
+fi
 
 # don't quit after any failure
 set +e
@@ -32,28 +42,32 @@ echo
 echo "Please enter the password for user \"${USER-:noname}\" on the host \"${HOST:-localhost}\":"
 sudo uname -a
 
-# input
-_yourname="${1}"
-_configuard_link="${2}"
+echo
+echo "Logging in to Google…"
+_yourname="$(gcloud auth login 2>&1 | awk '/^You are now logged in as / { gsub(/\[/, ""); gsub(/\].*/, ""); print $7; }')"
+if [ -z "${_yourname}" ]; then
+    error "Authentication failed!" 4
+fi
+echo "Successfully authenticated as: ${_yourname}"
 
+_configuard_token="$(gcloud storage cat gs://configuard/uuid-token)"
+if [ -z "${_configuard_token}" ]; then
+    error "Couldn't fetch Configuard token from Google Cloud Provider. Insufficient access rights? Please contact administrator." 4
+fi
+
+_configuard_link="${1%/}/${_configuard_token}/wireguard/workstation"
 
 _domain="int.centra.systems"
 _default_net="198.18"
 _dnsmasq_plist="com.centra.dnsmasq.plist"
 
 # software bundle
-_current_software_bundle_version="2023-01"
+_current_software_bundle_version="2023-02"
 _bundle="bundle-macos${_os_release}-${_arch}-${_current_software_bundle_version}"
 _bundle_link="https://software.verknowsys.com/vpn-bundles/${_bundle}.tar.xz"
 
 # override PATH
 export PATH="${_software_prefix}/sbin:${_software_prefix}/bin:/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin"
-
-# show error and quit with given exit code
-error () {
-    echo "ERROR: ${1}"
-    exit "${2:-1}"
-}
 
 # fetch prebuilt software bundle per OS architecture
 fetch_and_unpack_software_bundle () {
@@ -77,12 +91,6 @@ fetch_and_unpack_software_bundle () {
 mkdir -p \
     "${_software_prefix}" \
     "${HOME}/Library/LaunchAgents"
-if [ -z "${_yourname}" ]; then
-    error "No configuard user-name provided (as the first argument). Setup aborted!" 3
-fi
-if [ -z "${_configuard_link}" ]; then
-    error "No configuard address provided (as the second argument). Setup aborted!" 3
-fi
 
 fetch_and_unpack_software_bundle
 which wg >/dev/null \
@@ -177,7 +185,7 @@ for _network in $(networksetup -listallnetworkservices | awk '!/ / {print $1;}')
 done
 
 echo "Fetching Wireguard configuration…"
-curl -s -XPOST "${_configuard_link}/${_yourname}" > "${_software_prefix}/etc/wireguard/wg0.conf"
+curl -s -XPOST "${_configuard_link}/${_yourname%@*}" > "${_software_prefix}/etc/wireguard/wg0.conf"
 
 echo "Installing Configuard…"
 if [ "local" = "${3}" ]; then
