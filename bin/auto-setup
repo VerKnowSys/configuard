@@ -42,21 +42,6 @@ echo
 echo "Please enter the password for user \"${USER-:noname}\" on the host \"${HOST:-localhost}\":"
 sudo uname -a
 
-echo
-echo "Logging in to Google…"
-_yourname="$(gcloud auth login 2>&1 | awk '/^You are now logged in as / { gsub(/\[/, ""); gsub(/\].*/, ""); print $7; }')"
-if [ -z "${_yourname}" ]; then
-    error "Authentication failed!" 4
-fi
-echo "Successfully authenticated as: ${_yourname}"
-
-_configuard_token="$(gcloud storage cat gs://configuard/uuid-token)"
-if [ -z "${_configuard_token}" ]; then
-    error "Couldn't fetch Configuard token from Google Cloud Provider. Insufficient access rights? Please contact administrator." 4
-fi
-
-_configuard_link="${1%/}/${_configuard_token}/wireguard/workstation"
-
 _domain="int.centra.systems"
 _default_net="198.18"
 _dnsmasq_plist="com.centra.dnsmasq.plist"
@@ -104,6 +89,21 @@ which dnsmasq >/dev/null \
 
 
 # main():
+echo
+echo "Logging in to Google…"
+_yourname="$(gcloud auth login 2>&1 | awk '/^You are now logged in as / { gsub(/\[/, ""); gsub(/\].*/, ""); print $7; }')"
+if [ -z "${_yourname}" ]; then
+    error "Authentication failed!" 4
+fi
+echo "Successfully authenticated as: ${_yourname}"
+
+_configuard_token="$(gcloud storage cat gs://configuard/uuid-token)"
+if [ -z "${_configuard_token}" ]; then
+    error "Couldn't fetch Configuard token from Google Cloud Provider. Insufficient access rights? Please contact administrator." 4
+fi
+
+_configuard_link="${1%/}/${_configuard_token}/wireguard/workstation"
+
 echo "Resetting DNS…"
 for _network in $(networksetup -listallnetworkservices | awk '!/ / {print $1;}'); do
     networksetup -setdnsservers "${_network}" "Empty"
