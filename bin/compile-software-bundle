@@ -2,7 +2,7 @@
 
 set -e
 
-_current_software_bundle_version="2023-01"
+_current_software_bundle_version="2023-02"
 _arch="$(uname -m)"
 _os_version="$(sw_vers -productVersion)"
 _os_minor_release="${_os_version%.*}"
@@ -13,7 +13,10 @@ _prefix="/Users/Shared/Centra"
 _log="/tmp/build-bundle.log"
 _source="https://software.verknowsys.com/source"
 
-_dnsmasq_tarball="dnsmasq-2.88.tar.xz"
+_gcloud_tarball="google-cloud-cli-449.0.0-darwin-arm.tar.gz"
+_gcloud_dir="google-cloud-sdk"
+
+_dnsmasq_tarball="dnsmasq-2.89.tar.xz"
 _dnsmasq_dir="${_dnsmasq_tarball%.tar.xz}"
 
 _wireguard_tools_tarball="wireguard-tools-1.0.20210914.tar.xz"
@@ -29,6 +32,9 @@ echo "Cleaning old prefix: ${_prefix}"
 rm -rf "${_prefix}"
 
 echo "Downloading tarballs…"
+if [ ! -f "${_gcloud_tarball}" ]; then
+    curl -s -o "/tmp/${_gcloud_tarball}" "${_source}/${_gcloud_tarball}"
+fi
 if [ ! -f "${_dnsmasq_tarball}" ]; then
     curl -s -o "/tmp/${_dnsmasq_tarball}" "${_source}/${_dnsmasq_tarball}"
 fi
@@ -46,6 +52,7 @@ cleanup () {
     echo "Cleaning up…"
     (
         cd /tmp;
+        rm -rf "${_gcloud_dir}";
         rm -rf "${_dnsmasq_dir}";
         rm -rf "${_wireguard_tools_dir}";
         rm -rf "${_wireguard_go_dir}";
@@ -57,6 +64,7 @@ cleanup
 echo "Unpacking tarballs…"
 (
     cd /tmp;
+    tar -xf "${_gcloud_tarball}";
     tar -xf "${_dnsmasq_tarball}";
     tar -xf "${_wireguard_tools_tarball}";
     tar -xf "${_wireguard_go_tarball}";
@@ -65,9 +73,14 @@ echo "Unpacking tarballs…"
 
 echo "Building and installing the software (this may take a minute or two)…"
 (
+    mkdir -p "${_prefix}";
+
+    cd "/tmp/${_gcloud_dir}";
+    cp -R ./ "${_prefix}/";
+
     cd "/tmp/${_dnsmasq_dir}";
     sed -i '' -e "s#src#\./src#; s#/usr/local#${_prefix}#;" Makefile;
-    sed -i '' -e "s#/etc/dnsmasq.conf#${_prefix}/dnsmasq.conf#;" src/config.h
+    sed -i '' -e "s#/etc/dnsmasq.conf#${_prefix}/dnsmasq.conf#;" src/config.h;
     make install > "${_log}" 2> "${_log}";
 
     cd "/tmp/${_wireguard_tools_dir}/src";
@@ -89,7 +102,7 @@ echo "Building and installing the software (this may take a minute or two)…"
 echo "Preparing software bundle…"
 (
     cd "${_prefix}";
-    tar -cJf "${_bundle}.tar.xz" --exclude "*.tar.xz" bin sbin etc share;
+    tar -cJf "${_bundle}.tar.xz" --exclude "*.tar.xz" bin sbin etc share platform lib data;
 )
 
 echo "Sending software bundle to remote…"
