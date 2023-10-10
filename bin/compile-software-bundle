@@ -13,7 +13,7 @@ _prefix="/Users/Shared/Centra"
 _log="/tmp/build-bundle.log"
 _source="https://software.verknowsys.com/source"
 
-_gcloud_tarball="google-cloud-cli-449.0.0-darwin-arm.tar.gz"
+_gcloud_tarball="google-cloud-cli-449.0.0-darwin-${_arch}.tar.gz"
 _gcloud_dir="google-cloud-sdk"
 
 _dnsmasq_tarball="dnsmasq-2.89.tar.xz"
