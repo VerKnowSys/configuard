@@ -1,39 +1,6 @@
 use crate::utils::{find_last_ipv4, next_instance_ipv4, next_workstation_ipv4};
 
 
-#[test]
-fn check_v4_instance_increment() {
-    assert_eq!(next_instance_ipv4("0"), None);
-    assert_eq!(
-        next_instance_ipv4("127.0.0.0"),
-        Some("127.0.0.2".to_string())
-    );
-    assert_eq!(
-        next_instance_ipv4("127.0.0.1"),
-        Some("127.0.0.2".to_string())
-    );
-    assert_eq!(
-        next_instance_ipv4("127.0.0.2"),
-        Some("127.0.0.3".to_string())
-    );
-    assert_eq!(
-        next_instance_ipv4("127.0.0.253"),
-        Some("127.0.0.254".to_string())
-    );
-    assert_eq!(
-        next_instance_ipv4("127.0.0.254"),
-        Some("127.0.2.2".to_string())
-    );
-    assert_eq!(
-        next_instance_ipv4("127.0.252.254"),
-        Some("127.0.254.2".to_string())
-    );
-    assert_eq!(
-        next_instance_ipv4("127.0.254.253"),
-        Some("127.0.254.254".to_string())
-    );
-    assert_eq!(next_instance_ipv4("127.0.254.254"), None);
-}
 
 
 #[test]

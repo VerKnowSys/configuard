@@ -28,30 +28,6 @@ pub fn next_workstation_ipv4(ipv4: &str) -> Option<String> {
 }
 
 
-pub fn next_instance_ipv4(ipv4: &str) -> Option<String> {
-    match ipv4
-        .split('.')
-        .map(|elem| elem.parse().unwrap_or(1))
-        .collect::<Vec<u8>>()
-        .as_slice()
-    {
-        [a, b, c, d] => {
-            if d == &0 {
-                // disallow assigning .1 address reserved for routers:
-                Some(format!("{}.{}.{}.{}", a, b, c, d + 2))
-            } else if d < &(u8::MAX - 1) {
-                Some(format!("{}.{}.{}.{}", a, b, c, d + 1))
-            } else if d == &(u8::MAX - 1) && c < &(u8::MAX - 2) {
-                Some(format!("{}.{}.{}.{}", a, b, c + 2, 2))
-            } else {
-                None
-            }
-        }
-        _ => None,
-    }
-}
-
-
 pub fn find_last_ipv4(list: Vec<String>) -> Option<String> {
     if list.is_empty() {
         None
