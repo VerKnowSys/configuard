@@ -1,6 +1,9 @@
-use crate::utils::{find_last_ipv4, next_instance_ipv4, next_workstation_ipv4};
+use crate::{
+    common::{read_all_entries, render_all_entries},
+    utils::{find_last_ipv4, next_workstation_ipv4},
+};
 
-
+const ENTRIES_DIR: &str = "./tests/entries";
 
 
 #[test]
@@ -72,4 +75,24 @@ fn check_matchers() {
     assert!(!file_name_match.is_match("8"));
     assert!(!file_name_match.is_match("zażółć"));
     assert!(!file_name_match.is_match("../../../etc"));
+}
+
+
+#[test]
+fn test_read_all_entries() {
+    let all_the_things = read_all_entries(ENTRIES_DIR);
+    assert_eq!(all_the_things.0.len(), 3);
+    assert_eq!(all_the_things.1.len(), 3);
+}
+
+
+#[test]
+fn test_render_all_entries() {
+    let all_the_things = render_all_entries(ENTRIES_DIR);
+    assert!(!all_the_things.is_empty());
+    assert!(all_the_things.len() == 323);
+    assert!(all_the_things.contains("123.45.67.89"));
+    assert!(all_the_things.contains("123.45.67.90"));
+    assert!(all_the_things.contains("123.45.67.91"));
+    assert!(all_the_things.contains("dmilith3"));
 }
