@@ -1,6 +1,7 @@
 use crate::{
-    common::{read_all_entries, render_all_entries},
+    common::{read_all_entries, read_all_used_ipv4, render_all_entries},
     utils::{find_last_ipv4, next_workstation_ipv4},
+    workstations::new_configuration,
 };
 
 const ENTRIES_DIR: &str = "./tests/entries";
@@ -95,4 +96,12 @@ fn test_render_all_entries() {
     assert!(all_the_things.contains("123.45.67.90"));
     assert!(all_the_things.contains("123.45.67.91"));
     assert!(all_the_things.contains("dmilith3"));
+}
+
+
+#[test]
+fn test_read_all_used_ipv4() {
+    let all_entries = read_all_used_ipv4("tests/entries");
+    assert_eq!(all_entries.len(), 3);
+    assert!(all_entries.contains(&String::from("123.45.67.89")))
 }

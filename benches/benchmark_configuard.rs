@@ -1,4 +1,7 @@
 use configuard::common::{read_all_entries, render_all_entries};
+    common::{read_all_entries, render_all_entries},
+    new_decoy,
+};
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 
 
@@ -17,9 +20,13 @@ fn criterion_render_all_entries(c: &mut Criterion) {
     });
 }
 
+fn criterion_decoy(c: &mut Criterion) {
+    c.bench_function("+Decoy", |b| b.iter(new_decoy));
+}
 
 criterion_group!(
     benches,
+    criterion_decoy,
     criterion_read_all_entries,
     criterion_render_all_entries
 );

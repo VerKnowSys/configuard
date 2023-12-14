@@ -6,7 +6,7 @@ use crate::{
         WireguardSyncConfigTemplate, WireguardWorkstationTemplate,
     },
     utils::{both_elements, first_of_pair, run},
-    ENTRIES_DIR, SERVER_PRIVATE_KEY, SERVER_PUBLIC_KEY,
+    SERVER_PRIVATE_KEY, SERVER_PUBLIC_KEY,
 };
 use askama::Template;
 use rand_core::OsRng;
@@ -123,8 +123,8 @@ pub fn is_not_hidden_file(file: &DirEntry) -> bool {
 }
 
 
-pub fn read_files_list(from_subdir: &str) -> Vec<DirEntry> {
-    WalkDir::new(from_subdir)
+pub fn read_files_list(from_dir: &str) -> Vec<DirEntry> {
+    WalkDir::new(from_dir)
         .into_iter()
         .filter_map(|v| v.ok())
         .filter(is_not_hidden_file)
@@ -137,8 +137,8 @@ pub fn file_name_to_string(name: &OsStr) -> String {
 }
 
 
-pub fn read_all_used_ipv4(from_subdir: &str) -> Vec<String> {
-    WalkDir::new(format!("{ENTRIES_DIR}{from_subdir}"))
+pub fn read_all_used_ipv4(from_dir: &str) -> Vec<String> {
+    WalkDir::new(from_dir)
         .into_iter()
         .filter_map(|v| v.ok())
         .filter(is_not_hidden_file)
