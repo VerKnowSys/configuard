@@ -19,19 +19,25 @@ pub fn generate_wireguard_keys() -> (String, String) {
     let private = StaticSecret::new(&mut OsRng);
     let public = PublicKey::from(&private);
     let public_b64 = base64::encode(public.as_bytes());
-    let private_b64 = base64::encode(&private.to_bytes());
+    let private_b64 = base64::encode(private.to_bytes());
     (private_b64, public_b64)
 }
 
 
-pub fn commit_wireguard_configuration(user_ipv4: &str) {
+pub fn commit_wireguard_configuration(
+    user_ipv4: &str,
+    main_net: &str,
+    main_net_mask: &str,
+    wireguard_bin: &str,
+    wireguard_conf: &str,
+) {
     // NOTE: Create bridge0 with router ip assigned to it. Don't assign .1.1 to server-side wg
     // println!("Setting up bridge0");
     run(
         "/dev/stderr",
         BridgeRouterAliasTemplate {
-            router_ip_address: &format!("{}.1.1", config().main_net),
-            net_mask: &config().main_net_mask,
+            router_ip_address: &format!("{main_net}.1.1"),
+            net_mask: main_net_mask,
         },
     )
     .ok();
@@ -58,45 +64,53 @@ pub fn commit_wireguard_configuration(user_ipv4: &str) {
     run(
         "/dev/stdout",
         WireguardSyncConfigTemplate {
-            wireguard_bin: &config().wireguard_bin,
-            wireguard_conf: &config().wireguard_conf,
+            wireguard_bin,
+            wireguard_conf,
         },
     )
     .ok();
 }
 
 
-pub fn render_all_entries() -> String {
-    let all_entries = read_files_list(ENTRIES_DIR);
-    let all_entries_ipv4s_and_pubkeys = all_entries
+pub fn read_all_entries(entries_dir: &str) -> (Vec<DirEntry>, Vec<(String, String)>) {
+    let dir_entries = read_files_list(entries_dir);
+    let ipv4s_and_pubkeys = dir_entries
         .iter()
         .filter_map(|file| read_to_string(file.path()).ok())
         .filter_map(both_elements)
         .collect::<Vec<_>>();
-
-    all_entries
-        .iter()
-        .zip(&all_entries_ipv4s_and_pubkeys)
-        .map(|(config_name, (ip, pubkey))| {
-            // entries
-            format!(
-                "{}\n\n",
-                (WireguardServerConfigurationEntryTemplate {
-                    user_name: &file_name_to_string(config_name.file_name()),
-                    user_ips: ip,
-                    user_public_key: pubkey,
-                })
-                .render()
-                .unwrap_or_default()
-            )
-        })
-        .collect()
+    (dir_entries, ipv4s_and_pubkeys)
 }
 
 
-pub fn render_server_config_head() -> String {
+pub fn render_all_entries(entries_dir: &str) -> String {
+    let render_entry =
+        |config_name: &DirEntry, user_ips: &String, user_public_key: &String| {
+            let user_name = &file_name_to_string(config_name.file_name());
+            (WireguardServerConfigurationEntryTemplate {
+                user_name,
+                user_ips,
+                user_public_key,
+            })
+            .render()
+            .unwrap_or_default()
+        };
+
+    let (dir_entries, ipv4s_and_pubkeys) = read_all_entries(entries_dir);
+    dir_entries.iter().zip(&ipv4s_and_pubkeys).fold(
+        String::new(),
+        |mut result, (config_name, (ip, pubkey))| {
+            let entry = render_entry(config_name, ip, pubkey);
+            result.push_str(&format!("{entry}\n\n"));
+            result
+        },
+    )
+}
+
+
+pub fn render_server_config_head(server_port: u16) -> String {
     (WireguardServerConfigurationTemplate {
-        server_port: &format!("{}", config().server_port),
+        server_port: &format!("{server_port}"),
         server_private_key: &read_server_key(SERVER_PRIVATE_KEY),
     })
     .render()
@@ -124,7 +138,7 @@ pub fn file_name_to_string(name: &OsStr) -> String {
 
 
 pub fn read_all_used_ipv4(from_subdir: &str) -> Vec<String> {
-    WalkDir::new(&format!("{}{}", ENTRIES_DIR, from_subdir))
+    WalkDir::new(format!("{ENTRIES_DIR}{from_subdir}"))
         .into_iter()
         .filter_map(|v| v.ok())
         .filter(is_not_hidden_file)

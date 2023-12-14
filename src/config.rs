@@ -1,7 +1,7 @@
 use serde_derive::Deserialize;
 
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Config {
     pub uuid: String,
     pub main_net: String,

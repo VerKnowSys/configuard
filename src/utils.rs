@@ -51,10 +51,7 @@ pub fn run(log_file: &str, template: impl Template) -> Result<ExitStatus, Error>
     let rendered = template
         .render()
         .unwrap_or_default()
-        .replace("\t", " ")
-        .replace("\n", " ")
-        .replace("\r", " ")
-        .replace("\\", " ");
+        .replace(['\t', '\n', '\r', '\\'], " ");
 
     let command = rendered.split_whitespace().collect::<Vec<&str>>();
 
@@ -62,8 +59,8 @@ pub fn run(log_file: &str, template: impl Template) -> Result<ExitStatus, Error>
     let command_args = &command[1..];
 
     let mut options = OpenOptions::new();
-    let out_file = options.create(true).append(true).open(&log_file)?;
-    let err_file = options.create(true).append(true).open(&log_file)?;
+    let out_file = options.create(true).append(true).open(log_file)?;
+    let err_file = options.create(true).append(true).open(log_file)?;
 
     Command::new(command_name)
         .args(command_args)
@@ -81,19 +78,15 @@ pub fn write_atomic(file_path: &str, contents: &str) {
 
     // NOTE: since file is written in "write only, all at once" mode, we have to be sure not to write empty buffer
     if !contents.is_empty() {
-        match File::create(&file_path) {
+        match File::create(file_path) {
             Ok(mut file) => {
                 file.write_all(contents.as_bytes()).unwrap_or_else(|_| {
-                    panic!("Access denied? File can't be written: {}", &file_path)
+                    panic!("Access denied? File can't be written: {file_path}")
                 });
             }
 
             Err(err) => {
-                panic!(
-                    "Atomic write to: {} has failed! Cause: {}",
-                    &file_path,
-                    err.to_string()
-                )
+                panic!("Atomic write to: {file_path} has failed! Cause: {err}")
             }
         }
     }
