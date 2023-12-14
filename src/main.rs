@@ -1,51 +1,5 @@
-#![forbid(unsafe_code)]
-#![deny(
-        // missing_docs,
-        unstable_features,
-        missing_debug_implementations,
-        // missing_copy_implementations,
-        trivial_casts,
-        trivial_numeric_casts,
-        unused_import_braces,
-        // unused_qualifications,
-        )]
-// #![allow(unused_imports, dead_code)]
-
-#[macro_use]
-extern crate lazy_static;
-
-#[macro_use]
-extern crate rocket;
-
-use crate::{
-    common::new_decoy,
-    config::{config, validate_config},
-};
-use regex::Regex;
-use rocket::request::Request;
-
-mod common;
-mod config;
-mod instances;
-mod templates;
-mod utils;
-mod workstations;
-
-#[cfg(test)]
-mod tests;
-
-
-const ENTRIES_DIR: &str = "entries/";
-const INSTANCES_DIR: &str = "instances/";
-const WORKSTATIONS_DIR: &str = "workstations/";
-const SERVER_PUBLIC_KEY: &str = "/Services/Wireguard-tools/pub.key";
-const SERVER_PRIVATE_KEY: &str = "/Services/Wireguard-tools/private.key";
-
-
-lazy_static! {
-    // this will be reused after first regex compilation:
-    static ref FILE_NAME_REGEX: Regex = Regex::new(r"^[a-zA-Z0-9 -\.]{3,}$").unwrap();
-}
+use configuard::*;
+use rocket::{catch, catchers, request::Request, routes};
 
 
 #[catch(500)]
@@ -62,17 +16,17 @@ fn not_found(_req: &Request) -> String {
 
 #[rocket::main]
 async fn main() -> Result<(), rocket::Error> {
-    validate_config(&config());
+    let config = config();
+    validate_config(&config);
+
+    let server_uuid = config.uuid;
     rocket::build()
         .mount(
-            &format!("/{}/wireguard/instance/", config().uuid),
-            routes![instances::new],
-        )
-        .mount(
-            &format!("/{}/wireguard/workstation/", config().uuid),
+            &format!("/{server_uuid}/wireguard/workstation/"),
             routes![workstations::new],
         )
         .register("/", catchers![internal_error, not_found])
         .launch()
-        .await
+        .await?;
+    Ok(())
 }
