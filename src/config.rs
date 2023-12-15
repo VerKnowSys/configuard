@@ -10,6 +10,7 @@ pub struct Config {
     pub server_public_ip: String,
     pub wireguard_conf: String,
     pub wireguard_bin: String,
+    pub error_log: String,
 }
 
 

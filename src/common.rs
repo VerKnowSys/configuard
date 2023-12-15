@@ -30,11 +30,12 @@ pub fn commit_wireguard_configuration(
     main_net_mask: &str,
     wireguard_bin: &str,
     wireguard_conf: &str,
+    error_log: &str,
 ) {
     // NOTE: Create bridge0 with router ip assigned to it. Don't assign .1.1 to server-side wg
     // println!("Setting up bridge0");
     run(
-        "/dev/stderr",
+        error_log,
         BridgeRouterAliasTemplate {
             router_ip_address: &format!("{main_net}.1.1"),
             net_mask: main_net_mask,
@@ -45,7 +46,7 @@ pub fn commit_wireguard_configuration(
     // for ipv6: route -6 add fde4:82c4:04eb:dd8d::1:5 -interface wg0
     // println!("Setting up Wireguard routes for: {}", &user_ipv4);
     run(
-        "/dev/stderr",
+        error_log,
         RouteDelTemplate {
             ipv4_address: user_ipv4,
         },
@@ -53,7 +54,7 @@ pub fn commit_wireguard_configuration(
     .ok();
 
     run(
-        "/dev/stderr",
+        error_log,
         RouteAddTemplate {
             ipv4_address: user_ipv4,
         },
@@ -62,7 +63,7 @@ pub fn commit_wireguard_configuration(
 
     // println!("Synchronizing server configuration");
     run(
-        "/dev/stdout",
+        error_log,
         WireguardSyncConfigTemplate {
             wireguard_bin,
             wireguard_conf,

@@ -34,6 +34,7 @@ pub const ENTRIES_DIR: &str = "entries/";
 pub const WORKSTATIONS_DIR: &str = "workstations/";
 pub const SERVER_PUBLIC_KEY: &str = "/Services/Wireguard-tools/pub.key";
 pub const SERVER_PRIVATE_KEY: &str = "/Services/Wireguard-tools/private.key";
+pub const NULL_LOG: &str = "/dev/null";
 
 
 lazy_static! {

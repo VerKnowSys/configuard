@@ -6,7 +6,7 @@ use crate::{
     config::*,
     templates::WireguardWorkstationTemplate,
     utils::{find_last_ipv4, first_of_pair, next_workstation_ipv4, write_atomic},
-    ENTRIES_DIR, FILE_NAME_REGEX, SERVER_PUBLIC_KEY, WORKSTATIONS_DIR,
+    ENTRIES_DIR, FILE_NAME_REGEX, NULL_LOG, SERVER_PUBLIC_KEY, WORKSTATIONS_DIR,
 };
 use askama::Template;
 use lockfile::Lockfile;
@@ -22,6 +22,11 @@ pub fn new_configuration(user_name: &str) -> Result<String, Error> {
     let server_port = config.server_port;
     let wireguard_conf = config.wireguard_conf;
     let wireguard_bin = config.wireguard_bin;
+    let error_log = if config.error_log.is_empty() {
+        NULL_LOG
+    } else {
+        &config.error_log
+    };
 
     // if IP entry with given name already exists - we wish to re-use it:
     let existing_entry =
@@ -67,6 +72,7 @@ pub fn new_configuration(user_name: &str) -> Result<String, Error> {
         &main_net_mask,
         &wireguard_bin,
         &wireguard_conf,
+        error_log,
     );
 
     let server_public_key = &read_server_key(SERVER_PUBLIC_KEY);
