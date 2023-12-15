@@ -1,7 +1,6 @@
 use crate::{
     common::{read_all_entries, read_all_used_ipv4, render_all_entries},
     utils::{find_last_ipv4, next_workstation_ipv4},
-    workstations::new_configuration,
 };
 
 const ENTRIES_DIR: &str = "./tests/entries";
@@ -104,4 +103,20 @@ fn test_read_all_used_ipv4() {
     let all_entries = read_all_used_ipv4("tests/entries");
     assert_eq!(all_entries.len(), 3);
     assert!(all_entries.contains(&String::from("123.45.67.89")))
+}
+
+
+#[test]
+fn test_used_ips_in_context() {
+    let all_used_ipv4s = read_all_used_ipv4("tests/entries");
+    let the_last_ipv4 = match find_last_ipv4(all_used_ipv4s) {
+        Some(ipv4) => ipv4,
+        None => String::from("123.45.1.1"), /* if list of entries is empty, assign next address after router */
+    };
+    let the_next = match next_workstation_ipv4(&the_last_ipv4) {
+        Some(ipv4) => ipv4,
+        None => panic!("Address pool exhausted!"),
+    };
+    assert_eq!(the_last_ipv4, "123.45.67.91");
+    assert_eq!(the_next, "123.45.67.92");
 }

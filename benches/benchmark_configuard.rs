@@ -1,5 +1,5 @@
-use configuard::common::{read_all_entries, render_all_entries};
-    common::{read_all_entries, render_all_entries},
+use configuard::{
+    common::{read_all_entries, render_all_entries, render_server_config_head},
     new_decoy,
 };
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
@@ -24,10 +24,18 @@ fn criterion_decoy(c: &mut Criterion) {
     c.bench_function("+Decoy", |b| b.iter(new_decoy));
 }
 
+fn criterion_render_server_config_head(c: &mut Criterion) {
+    c.bench_function("+Server config render", |b| {
+        b.iter(|| render_server_config_head(black_box(12345)))
+    });
+}
+
+
 criterion_group!(
     benches,
     criterion_decoy,
     criterion_read_all_entries,
-    criterion_render_all_entries
+    criterion_render_all_entries,
+    criterion_render_server_config_head,
 );
 criterion_main!(benches);
