@@ -5,3 +5,4 @@ server_public_ip = "188.226.147.52" # your external wireguard server ipv4 addres
 server_port = 61194
 wireguard_bin = "PREFIX/bin/wg"
 wireguard_conf = "PREFIX/etc/wireguard/wg0.conf"
+error_log = "/var/log/configuard.log"
