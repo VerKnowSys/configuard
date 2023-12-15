@@ -1,4 +1,5 @@
 use serde_derive::Deserialize;
+use std::path::Path;
 
 
 #[derive(Deserialize, Debug, Clone)]
@@ -18,7 +19,7 @@ pub fn config() -> Config {
     use std::fs::read_to_string;
     match toml::from_str(&read_to_string("config/config.toml").unwrap_or_default()) {
         Ok(config) => config,
-        Err(error) => panic!("Failed to read config: {}", error),
+        Err(error) => panic!("Failed to read config: {error}"),
     }
 }
 
@@ -36,10 +37,10 @@ pub fn validate_config(config: &Config) {
     if config.uuid.is_empty() {
         panic!("Config: uuid can't be empty!")
     }
-    if config.wireguard_conf.is_empty() || !config.wireguard_conf.ends_with("conf") {
-        panic!("Config: wireguard_conf has to be path to wg0.conf!")
+    if config.wireguard_conf.is_empty() || !Path::new(&config.wireguard_conf).exists() {
+        panic!("Config: wireguard_conf has to be path to wg0.conf and has to exist!")
     }
-    if config.wireguard_bin.is_empty() || !config.wireguard_bin.ends_with("wg") {
+    if config.wireguard_bin.is_empty() || !Path::new(&config.wireguard_bin).exists() {
         panic!("Config: wireguard_bin has to be path to wg binary!")
     }
     if config.server_port == 0 {
