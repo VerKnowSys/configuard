@@ -28,6 +28,7 @@ pub struct WireguardServerConfigurationEntryTemplate<'a> {
     pub user_name: &'a str,
     pub user_public_key: &'a str,
     pub user_ips: &'a str,
+    pub modified_at: &'a str,
 }
 
 

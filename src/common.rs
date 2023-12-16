@@ -9,6 +9,7 @@ use crate::{
     SERVER_PRIVATE_KEY, SERVER_PUBLIC_KEY,
 };
 use askama::Template;
+use chrono::prelude::*;
 use rand_core::OsRng;
 use std::{ffi::OsStr, fs::read_to_string};
 use walkdir::{DirEntry, WalkDir};

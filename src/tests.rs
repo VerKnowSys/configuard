@@ -1,5 +1,5 @@
 use crate::{
-    common::{read_all_entries, read_all_used_ipv4, render_all_entries},
+    common::{read_all_entries, read_all_used_ipv4, render_all_entries, render_entry},
     utils::{find_last_ipv4, next_workstation_ipv4},
 };
 
