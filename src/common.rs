@@ -73,6 +73,21 @@ pub fn commit_wireguard_configuration(
 }
 
 
+pub fn render_entry(config_name: &DirEntry, user_ips: &str, user_public_key: &str) -> String {
+    let local_time: DateTime<Local> = Local::now();
+    let modified_at = &local_time.to_rfc3339();
+    let user_name = &file_name_to_string(config_name.file_name());
+    (WireguardServerConfigurationEntryTemplate {
+        user_name,
+        user_ips,
+        user_public_key,
+        modified_at,
+    })
+    .render()
+    .unwrap_or_default()
+}
+
+
 pub fn read_all_entries(entries_dir: &str) -> (Vec<DirEntry>, Vec<(String, String)>) {
     let dir_entries = read_files_list(entries_dir);
     let ipv4s_and_pubkeys = dir_entries
@@ -85,25 +100,15 @@ pub fn read_all_entries(entries_dir: &str) -> (Vec<DirEntry>, Vec<(String, Strin
 
 
 pub fn render_all_entries(entries_dir: &str) -> String {
-    let render_entry =
-        |config_name: &DirEntry, user_ips: &String, user_public_key: &String| {
-            let user_name = &file_name_to_string(config_name.file_name());
-            (WireguardServerConfigurationEntryTemplate {
-                user_name,
-                user_ips,
-                user_public_key,
-            })
-            .render()
-            .unwrap_or_default()
-        };
-
     let (dir_entries, ipv4s_and_pubkeys) = read_all_entries(entries_dir);
     dir_entries.iter().zip(&ipv4s_and_pubkeys).fold(
         String::new(),
-        |mut result, (config_name, (ip, pubkey))| {
-            let entry = render_entry(config_name, ip, pubkey);
-            result.push_str(&format!("{entry}\n\n"));
-            result
+        |mut rendered_configuration, (config_name, (ip, pubkey))| {
+            rendered_configuration.push_str(&format!(
+                "{entry}\n\n",
+                entry = render_entry(config_name, ip, pubkey)
+            ));
+            rendered_configuration
         },
     )
 }

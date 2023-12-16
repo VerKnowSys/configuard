@@ -87,10 +87,24 @@ fn test_read_all_entries() {
 
 
 #[test]
+fn test_render_one() {
+    let user_ips = "123.456.88.11";
+    let user_public_key = "user-public-key";
+    let frist_entry = read_all_entries(ENTRIES_DIR).0.first().unwrap().clone();
+    let entry = render_entry(&frist_entry, user_ips, user_public_key);
+    assert!(entry.contains("file: dmilith2"));
+    assert!(entry.contains("modified_at: 20"));
+    assert!(entry.contains("[Peer]"));
+    assert!(entry.contains("PublicKey = user-public-key"));
+    assert!(entry.contains("AllowedIPs = 123.456.88.11"));
+}
+
+
+#[test]
 fn test_render_all_entries() {
     let all_the_things = render_all_entries(ENTRIES_DIR);
+    assert_eq!(all_the_things.len(), 467);
     assert!(!all_the_things.is_empty());
-    assert!(all_the_things.len() == 323);
     assert!(all_the_things.contains("123.45.67.89"));
     assert!(all_the_things.contains("123.45.67.90"));
     assert!(all_the_things.contains("123.45.67.91"));
