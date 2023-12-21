@@ -26,30 +26,30 @@ pub fn generate_wireguard_keys() -> (String, String) {
 
 
 pub fn commit_wireguard_configuration(
-    user_ipv4: &str,
+    ipv4_address: &str,
     main_net: &str,
-    main_net_mask: &str,
+    net_mask: &str,
     wireguard_bin: &str,
     wireguard_conf: &str,
     error_log: &str,
 ) {
+    let router_ip_address = &format!("{main_net}.1.1");
+
     // NOTE: Create bridge0 with router ip assigned to it. Don't assign .1.1 to server-side wg
-    // println!("Setting up bridge0");
     run(
         error_log,
         BridgeRouterAliasTemplate {
-            router_ip_address: &format!("{main_net}.1.1"),
-            net_mask: main_net_mask,
+            router_ip_address,
+            net_mask,
         },
     )
     .ok();
 
     // for ipv6: route -6 add fde4:82c4:04eb:dd8d::1:5 -interface wg0
-    // println!("Setting up Wireguard routes for: {}", &user_ipv4);
     run(
         error_log,
         RouteDelTemplate {
-            ipv4_address: user_ipv4,
+            ipv4_address,
         },
     )
     .ok();
@@ -57,12 +57,11 @@ pub fn commit_wireguard_configuration(
     run(
         error_log,
         RouteAddTemplate {
-            ipv4_address: user_ipv4,
+            ipv4_address,
         },
     )
     .ok();
 
-    // println!("Synchronizing server configuration");
     run(
         error_log,
         WireguardSyncConfigTemplate {
